@@ -1,0 +1,127 @@
+// === 顏色相關變數 ===
+$primary: #2A9D8F;       // 主色
+$primaryLight: #E0F2F1;  // 主色-淺
+$primaryDark: #2E6669;  // 主色-深
+
+$accent: #E76F51;        // 強調色
+$accentLight: #FFF3E0;
+
+
+// 灰階色
+$black: #333333;
+$white: #FFFFFF;
+$gray: #D8D8D8;
+$grayLight: #F6F7F9;
+$grayDark: #888888;
+
+
+// 漸層色，記得使用"background"，不能用"background-color"
+$linear1: linear-gradient(90deg, #F4F7ED, #DDEFD7 50%, #A6D3BC);
+$linear2: linear-gradient(90deg, #2A9D8F, #A6D3BC);
+
+
+$bgBody: #F5F7F9;   // 網頁背景色
+
+// === 字體相關變數 ===
+
+// 字粗
+$fontWeightRegular: 400;
+$fontWeightBold: 700;
+
+// 行高
+$lineHeightHeading: 1.25;  // 大標題
+$lineHeightSub: 1.4;       // 小標題
+$lineHeightBody: 1.6;      // 內文
+
+// 字距
+$letterSpacing: 0.05em;
+
+// 字體樣式 Mixins
+
+// 大標題 - 行高 125% ====================
+
+// 大標題 1 (36px) - 粗體 
+@mixin title1 {
+  font-size: 36px;
+  line-height: $lineHeightHeading;
+  font-weight: $fontWeightBold;
+  letter-spacing: $letterSpacing;
+  border: solid 1px;
+}
+
+// 大標題 2 (32px) - 粗體
+@mixin title2 {
+  font-size: 32px;
+  line-height: $lineHeightHeading;
+  font-weight: $fontWeightBold;
+  letter-spacing: $letterSpacing;
+}
+
+// 大標題 3 (28px) - 一般/粗體
+@mixin title3($isBold: false) {
+  font-size: 28px;
+  line-height: $lineHeightHeading;
+  // 如果 $isBold 是 true 則用粗體，否則用一般
+  font-weight: if($isBold, $fontWeightBold, $fontWeightRegular);
+  letter-spacing: $letterSpacing;
+}
+
+
+// 小標題 - 行高 140% ====================
+
+// 小標題 1 (24px) - 一般/粗體
+@mixin subtitle1($isBold: false) {
+  font-size: 24px;
+  line-height: $lineHeightSub;
+  font-weight: if($isBold, $fontWeightBold, $fontWeightRegular);
+  letter-spacing: $letterSpacing;
+}
+
+// 小標題 2 (20px) - 一般/粗體
+@mixin subtitle2($isBold: false) {
+  font-size: 20px;
+  line-height: $lineHeightSub;
+  font-weight: if($isBold, $fontWeightBold, $fontWeightRegular);
+  letter-spacing: $letterSpacing;
+}
+
+// 內文 - 行高 160% ====================
+
+// 內文 1 (18px) - 一般/粗體
+@mixin body1($isBold: false) {
+  font-size: 18px;
+  line-height: $lineHeightBody;
+  font-weight: if($isBold, $fontWeightBold, $fontWeightRegular);
+  letter-spacing: $letterSpacing;
+}
+
+// 內文 2 (16px) - 一般/粗體
+@mixin body2($isBold: false) {
+  font-size: 16px;
+  line-height: $lineHeightBody;
+  font-weight: if($isBold, $fontWeightBold, $fontWeightRegular);
+  letter-spacing: $letterSpacing;
+}
+
+// 內文 3 (14px) - 一般/粗體
+@mixin body3($isBold: false) {
+  font-size: 14px;
+  line-height: $lineHeightBody;
+  font-weight: if($isBold, $fontWeightBold, $fontWeightRegular);
+  letter-spacing: $letterSpacing;
+}
+
+// 字體引用方式 =======================
+// @include body2(true); 若要粗體()括號裡面才要寫true，不用則可以省略後面的括號
+
+
+// === 圓角/陰影相關變數 ===
+
+// --- 圓角 --- (看有沒有要用)
+$radius_sm: 5px;   // 小圓角
+$radius_md: 10px;  // 中圓角
+
+// --- 陰影 ---
+$shadow: 0 4px 6px -1px rgba(0, 0, 0, .10);
+$shadowDark: 0 4px 6px -1px rgba(0, 0, 0, .15);
+$shadowHover: 0 4px 6px -1px rgba(0, 0, 0, .25);

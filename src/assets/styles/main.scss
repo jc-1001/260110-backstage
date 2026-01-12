@@ -1,0 +1,8 @@
+/* src/assets/main.scss */
+@import './reset';
+@import './variables';
+
+body {
+  font-family: 'Noto Sans TC', sans-serif;
+  color: $black;
+}
