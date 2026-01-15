@@ -4,6 +4,7 @@ import { onBeforeUnmount, ref, shallowRef, onMounted } from 'vue'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 import adminHeader from '@/components/admin/adminHeader.vue'
 import { ArrowLeft, Delete, CircleCheck } from '@element-plus/icons-vue'
+
 // 編輯器實例，必須用 shallowRef
 const editorRef = shallowRef()
 
@@ -13,6 +14,7 @@ const valueHtml = ref('')
 const toolbarConfig = {
   // 放入出現的功能 Key
   toolbarKeys: [
+    'fontSize', // 字型大小
     'bold', // 粗體
     'italic', // 斜體
     'underline', // 下劃線
@@ -26,8 +28,15 @@ const toolbarConfig = {
     'divider', // 插入分割線
   ],
 }
-const editorConfig = { placeholder: '請輸入內容...' }
-
+const editorConfig = {
+  placeholder: '請輸入內容...',
+  MENU_CONF: {
+    // 設定字體大小的選項
+    fontSize: {
+      fontSizeList: ['12px', '14px', '16px', '20px', '24px', '32px'],
+    },
+  },
+}
 // 組件銷毀時，也及時銷毀編輯器 // 重要~~~
 onBeforeUnmount(() => {
   const editor = editorRef.value
@@ -123,7 +132,7 @@ watch(isNow, (newVal) => {
         mode="default"
       />
       <Editor
-        style="min-height: 300px; overflow-y: hidden"
+        style="min-height: auto; overflow-y: hidden"
         v-model="valueHtml"
         :defaultConfig="editorConfig"
         mode="default"
@@ -229,5 +238,8 @@ watch(isNow, (newVal) => {
 
 .edit-block {
   margin-top: 10px;
+  :deep(.w-e-scroll) {
+    height: 150px;
+  }
 }
 </style>
