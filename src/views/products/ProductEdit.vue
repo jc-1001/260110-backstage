@@ -1,53 +1,73 @@
 <script setup>
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Plus, Delete } from '@element-plus/icons-vue'
+import { Plus, Delete, ArrowLeft, CircleCheck } from '@element-plus/icons-vue'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 import '@wangeditor/editor/dist/css/style.css' // 引入 CSS 樣式
 import { onBeforeUnmount, shallowRef, onMounted } from 'vue'
+import { ElMessageBox } from 'element-plus'
+import adminHeader from '@/components/admin/adminHeader.vue'
 
-// 編輯器實例，必須用 shallowRef
-const editorRef = shallowRef()
-
-// 內容 HTML
-const valueHtml = ref('')
-
-const toolbarConfig = {
-  // 放入出現的功能 Key
-  toolbarKeys: [
-    'fontSize', // 字型大小
-    'bold', // 粗體
-    'italic', // 斜體
-    'underline', // 下劃線
-    'through', // 刪除線
-    '|', // 分隔線圖示
-    'bulletedList', // 無序列表
-    'numberedList', // 有序列表
-    'indent', // 增加縮排
-    'delIndent', // 減少縮排
-    '|', // 分隔線圖示
-    'divider', // 插入分割線
-  ],
+// 處理捨棄按鈕邏輯
+const handleDiscard = () => {
+  ElMessageBox.confirm('確定要捨棄目前輸入的內容嗎？', '提醒', {
+    confirmButtonText: '確定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  }).then(() => {
+    // 執行返回邏輯
+    console.log('已捨棄內容')
+  })
 }
+
+// 處理儲存按鈕邏輯
+const handleSave = () => {
+  // 在這裡收集你之前的 form 數據與 3 個編輯器的 HTML
+  const finalData = {
+    ...form.value,
+    images: imageList.value.filter((img) => img.url),
+    intro: introHtml.value,
+    spec: specHtml.value,
+    shipping: shippingHtml.value,
+  }
+  console.log('準備提交的數據：', finalData)
+  ElMessage.success('商品新增成功！')
+}
+
+// 定義三個區塊的 HTML 內容
+const introHtml = ref('') // 產品介紹
+const specHtml = ref('') // 商品規格
+const shippingHtml = ref('') // 配送須知
+
+// 定義三個編輯器的實例
+const introEditorRef = shallowRef()
+const specEditorRef = shallowRef()
+const shippingEditorRef = shallowRef()
+
+// 編輯器配置
 const editorConfig = {
   placeholder: '請輸入內容...',
-  MENU_CONF: {
-    // 設定字體大小的選項
-    fontSize: {
-      fontSizeList: ['12px', '14px', '16px', '20px', '24px', '32px'],
-    },
-  },
+  MENU_CONF: {},
 }
-// 組件銷毀時，也及時銷毀編輯器 // 重要~~~
-onBeforeUnmount(() => {
-  const editor = editorRef.value
-  if (editor == null) return
-  editor.destroy()
-})
 
-const handleCreated = (editor) => {
-  editorRef.value = editor // 記錄 editor 實例
+// 分別處理 Created 事件
+const handleIntroCreated = (editor) => {
+  introEditorRef.value = editor
 }
+const handleSpecCreated = (editor) => {
+  specEditorRef.value = editor
+}
+const handleShippingCreated = (editor) => {
+  shippingEditorRef.value = editor
+}
+
+// 組件卸載時銷毀所有編輯器
+onBeforeUnmount(() => {
+  const editors = [introEditorRef.value, specEditorRef.value, shippingEditorRef.value]
+  editors.forEach((editor) => {
+    if (editor) editor.destroy()
+  })
+})
 
 const form = ref({
   name: '',
@@ -69,7 +89,6 @@ const imageList = ref([
 const categoryOptions = [
   { value: '骨骼關節保養', label: '骨骼關節保養' },
   { value: '心血管循環', label: '心血管循環' },
-  { value: '維他命', label: '維他命' },
   { value: '晶亮護眼', label: '晶亮護眼' },
 ]
 
@@ -99,10 +118,22 @@ const removeImage = (index) => {
 </script>
 
 <template>
+  <adminHeader title="新增商品" />
+  <!-- 按鈕區 -->
   <div class="top-tool-bar">
-    <el-button>返回</el-button>
-    <el-button>捨棄</el-button>
-    <el-button>確定新增</el-button>
+    <div class="left-actions">
+      <router-link to="/products/" custom v-slot="{ navigate }">
+        <el-button class="back-btn" :icon="ArrowLeft" @click="navigate">返回</el-button>
+      </router-link>
+    </div>
+
+    <div class="right-actions">
+      <el-button class="del-btn" type="danger" :icon="Delete" @click="handleDiscard"
+        >捨棄</el-button
+      >
+
+      <el-button class="save-btn" :icon="CircleCheck" @click="handleSave">確定新增</el-button>
+    </div>
   </div>
   <main class="product-page">
     <section class="left">
@@ -138,7 +169,7 @@ const removeImage = (index) => {
         <h3 class="section-title">庫存資訊</h3>
         <div class="stock-num">
           <span>庫存數量</span>
-          <span>123</span>
+          <span>0</span>
         </div>
         <el-button class="add-stock-button">調整庫存</el-button>
       </section>
@@ -149,7 +180,10 @@ const removeImage = (index) => {
         <h3 class="section-title">商品名稱</h3>
         <el-input v-model="form.name" placeholder="請輸入商品名稱" />
       </div>
-
+      <div class="field-item full-width">
+        <h3 class="section-title">商品簡介</h3>
+        <el-input v-model="form.decsShort" placeholder="請簡要描述商品" />
+      </div>
       <div class="row-group">
         <div class="field-item">
           <h3 class="section-title">分類</h3>
@@ -166,6 +200,14 @@ const removeImage = (index) => {
           <h3 class="section-title">售價</h3>
           <el-input v-model="form.price" placeholder="輸入金額" />
         </div>
+        <div class="field-item">
+          <h3 class="section-title">產品規格</h3>
+          <el-input v-model="form.Spec" placeholder="如: 60 錠/袋" />
+        </div>
+        <div class="field-item">
+          <h3 class="section-title">初始庫存</h3>
+          <el-input v-model="form.stock" placeholder="輸入庫存數量" />
+        </div>
       </div>
       <div class="row-group">
         <div class="field-item">
@@ -180,28 +222,48 @@ const removeImage = (index) => {
             ></el-radio>
           </el-radio-group>
         </div>
-        <div class="field-item">
-          <h3 class="section-title">初始庫存</h3>
-          <el-input v-model="form.stock" placeholder="輸入庫存數量" />
-        </div>
       </div>
       <hr />
       <!-- 富文本輸入框 -->
       <div class="edit-block">
-        <h3 class="section-title">商品描述</h3>
-        <Toolbar
-          style="border: 1px solid #ccc"
-          :editor="editorRef"
-          :defaultConfig="toolbarConfig"
-          mode="default"
-        />
-        <Editor
-          style="min-height: auto; border: 1px solid #ccc; height: 150px; overflow-y: hidden"
-          v-model="valueHtml"
-          :defaultConfig="editorConfig"
-          mode="default"
-          @onCreated="handleCreated"
-        />
+        <div class="desc-block">
+          <h3 class="section-title">產品介紹</h3>
+          <div class="editor-container">
+            <Editor
+              style="height: 150px; overflow-y: hidden; overflow-x: hidden"
+              v-model="introHtml"
+              :defaultConfig="editorConfig"
+              mode="default"
+              @onCreated="handleIntroCreated"
+            />
+          </div>
+        </div>
+
+        <div class="desc-block">
+          <h3 class="section-title">商品規格</h3>
+          <div class="editor-container">
+            <Editor
+              style="height: 150px; overflow-y: hidden; overflow-x: hidden"
+              v-model="specHtml"
+              :defaultConfig="editorConfig"
+              mode="default"
+              @onCreated="handleSpecCreated"
+            />
+          </div>
+        </div>
+
+        <div class="desc-block">
+          <h3 class="section-title">配送須知</h3>
+          <div class="editor-container">
+            <Editor
+              style="height: 150px; overflow-y: hidden; overflow-x: hidden"
+              v-model="shippingHtml"
+              :defaultConfig="editorConfig"
+              mode="default"
+              @onCreated="handleShippingCreated"
+            />
+          </div>
+        </div>
       </div>
     </section>
   </main>
@@ -238,7 +300,30 @@ const removeImage = (index) => {
   padding: 8px;
   align-items: flex-start;
 }
-
+.top-tool-bar {
+  justify-content: space-between;
+}
+.save-btn.el-button {
+  // 設定按鈕的主背景色
+  background-color: $primaryDark;
+  color: white;
+  &:hover {
+    background-color: lighten($primaryDark, 5%);
+    border-color: lighten($primaryDark, 5%);
+    opacity: 0.9;
+    color: white;
+  }
+}
+.left-actions .back-btn.el-button {
+  background-color: $primary;
+  color: white;
+  &:hover {
+    background-color: lighten($primary, 5%);
+    border-color: lighten($primary, 5%);
+    opacity: 0.9;
+    color: white;
+  }
+}
 .product-upload-container,
 .product-describe {
   padding: 24px;
@@ -328,23 +413,27 @@ const removeImage = (index) => {
   color: #fff;
   width: 100%;
 }
-// :deep(.el-select) {
-//   /* 選取後的框框*/
-//   &.is-select .el-select__inner {
-//     background-color: $primaryDark !important;
-//     border-color: $primaryDark !important;
-//   }
+.edit-block {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 20px;
+  .editor-container {
+    border: 1px solid $gray;
+  }
+}
+:deep(.el-radio) {
+  //  選取後的樣式
+  &.is-checked {
+    .el-radio__inner {
+      background-color: $primaryDark !important;
+      border: none;
+    }
 
-//   /* 選取的內部勾勾*/
-//   &.is-select .el-select__inner::after {
-//     border-color: $white !important; // 勾勾顏色
-//     border-width: 2px;
-//   }
-
-//   /* 選取後的文字*/
-//   &.is-select .el-select__label {
-//     color: $black !important;
-//     font-weight: bold;
-//   }
-// }
+    /* 選取後的文字顏色 */
+    .el-radio__label {
+      color: $black !important;
+      font-weight: $fontWeightBold;
+    }
+  }
+}
 </style>
