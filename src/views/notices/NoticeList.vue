@@ -12,7 +12,7 @@ const search = ref('')
 const fetchData = () => {
   axios
     // .get('https://fakestoreapi.com/products')
-    .get('/data/adminNotice.json')
+    .get('./data/adminNotice.json')
     .then((response) => {
       // handle success -> 把請求後得到的資料丟給noticesList
       noticesList.value = response.data
