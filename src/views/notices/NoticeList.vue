@@ -1,18 +1,19 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { Search as SearchIcon } from '@element-plus/icons-vue'
 import adminHeader from '@/components/admin/adminHeader.vue'
 import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
-import axios from 'axios'
+import { publicApi } from '@/utils/publicApi'
+
 const noticesList = ref([])
 const search = ref('')
 // 只要定義數據，表格就會自動長出來
 // 假資料(引入data/adminNotice.json)
 
 const fetchData = () => {
-  axios
+  publicApi
     // .get('https://fakestoreapi.com/products')
-    .get('./data/adminNotice.json')
+    .get('data/adminNotice.json')
     .then((response) => {
       // handle success -> 把請求後得到的資料丟給noticesList
       noticesList.value = response.data
@@ -31,7 +32,7 @@ onMounted(() => {
 })
 
 // --- 分頁變數 ---
-const total = ref(50) // 總筆數
+const total = computed(() => filterTableData.value.length) // 總筆數動態變更
 const currentPage = ref(1) // 當前頁碼
 const pageSize = ref(10) // 每頁顯示幾筆
 
@@ -51,7 +52,25 @@ const pagedTableData = computed(() => {
   const endIndex = startIndex + pageSize.value
   return filterTableData.value.slice(startIndex, endIndex)
 })
+// 計算當前顯示的起始序號
+const rangeStart = computed(() => {
+  if (total.value === 0) return 0
+  return (currentPage.value - 1) * pageSize.value + 1
+})
 
+// 計算當前顯示的結束序號
+const rangeEnd = computed(() => {
+  return Math.min(currentPage.value * pageSize.value, total.value)
+})
+
+// 處理換頁點擊
+const handleCurrentChange = (val) => {
+  currentPage.value = val
+}
+// 監聽搜尋框、下拉選單、日期
+watch([search], () => {
+  currentPage.value = 1
+})
 // 每一行的樣式判斷
 const tableRowClassName = ({ row }) => {
   if (!row) return '' // 如果 row 還沒加載，直接回傳空字串
@@ -146,7 +165,9 @@ const getTagClass = (type) => {
   </div>
   <!-- 表格下方分頁及文字 -->
   <div class="pagination-container">
-    <div class="total-text">共 {{ total }} 筆訊息 | 目前顯示 1 至 {{ pageSize }} 筆</div>
+    <div class="total-text">
+      共 {{ total }} 筆訊息 | 目前顯示 1 至 {{ pagedTableData.length }} 筆
+    </div>
 
     <el-pagination
       v-model:current-page="currentPage"

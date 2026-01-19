@@ -96,7 +96,19 @@ const statusOptions = [
   { value: '上架', label: '上架' },
   { value: '下架', label: '下架' },
 ]
-
+// const tagOptions = [
+//   { value: '熱銷', label: '熱銷' },
+//   { value: '關鍵保養', label: '關鍵保養' },
+//   { value: '全素可食', label: '全素可食' },
+//   { value: '強力舒緩', label: '強力舒緩' },
+//   { value: '熱銷冠軍', label: '熱銷冠軍' },
+//   { value: '日本專利', label: '日本專利' },
+//   { value: '晚間保養', label: '晚間保養' },
+//   { value: '換季必備', label: '換季必備' },
+//   { value: '超級維生素', label: '超級維生素' },
+//   { value: '兒童可食', label: '兒童可食' },
+//   { value: '全家適用', label: '全家適用' },
+// ]
 const handleAvatarSuccess = (index, uploadFile) => {
   if (uploadFile.raw) {
     imageList.value[index].url = URL.createObjectURL(uploadFile.raw)
@@ -221,6 +233,10 @@ const removeImage = (index) => {
               :value="item.value"
             ></el-radio>
           </el-radio-group>
+        </div>
+        <div class="field-item">
+          <h3 class="section-title">商品標籤</h3>
+          <el-input v-model="form.tag" placeholder="輸入商品標籤 (如: 熱銷冠軍、全家適用)" />
         </div>
       </div>
       <hr />

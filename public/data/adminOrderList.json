@@ -1,0 +1,107 @@
+[
+  {
+    "order_id": "#20251210001",
+    "status": "待處理",
+    "customer": "王曉明",
+    "order_time": "2025/12/10 08:45:30",
+    "amount": 8763
+  },
+  {
+    "order_id": "#20251211025",
+    "status": "待處理",
+    "customer": "chen kenny",
+    "order_time": "2025/12/11 14:20:15",
+    "amount": 125
+  },
+  {
+    "order_id": "#20251212009",
+    "status": "已取消",
+    "customer": "張清芳",
+    "order_time": "2025/12/12 10:05:42",
+    "amount": 4849
+  },
+  {
+    "order_id": "#20251215012",
+    "status": "待處理",
+    "customer": "高金生",
+    "order_time": "2025/12/15 09:30:00",
+    "amount": 499
+  },
+  {
+    "order_id": "#20251218088",
+    "status": "待處理",
+    "customer": "leo wang",
+    "order_time": "2025/12/18 16:55:20",
+    "amount": 2999
+  },
+  {
+    "order_id": "#20251220033",
+    "status": "已出貨",
+    "customer": "蔡世昶",
+    "order_time": "2025/12/20 11:12:05",
+    "amount": 1450
+  },
+  {
+    "order_id": "#20251222047",
+    "status": "已出貨",
+    "customer": "陳小華",
+    "order_time": "2025/12/22 13:40:50",
+    "amount": 999
+  },
+  {
+    "order_id": "#20251224055",
+    "status": "已出貨",
+    "customer": "penny lu",
+    "order_time": "2025/12/24 17:00:10",
+    "amount": 450
+  },
+  {
+    "order_id": "#20251225011",
+    "status": "已取消",
+    "customer": "annie chang",
+    "order_time": "2025/12/25 20:15:33",
+    "amount": 1688
+  },
+  {
+    "order_id": "#20251225099",
+    "status": "已出貨",
+    "customer": "王月",
+    "order_time": "2025/12/25 22:30:45",
+    "amount": 2500
+  },
+  {
+    "order_id": "#20251226002",
+    "status": "待處理",
+    "customer": "李大華",
+    "order_time": "2025/12/26 10:20:00",
+    "amount": 3200
+  },
+  {
+    "order_id": "#20251227015",
+    "status": "已出貨",
+    "customer": "Sarah Wilson",
+    "order_time": "2025/12/27 15:10:22",
+    "amount": 1280
+  },
+  {
+    "order_id": "#20251228044",
+    "status": "已取消",
+    "customer": "林木森",
+    "order_time": "2025/12/28 09:05:11",
+    "amount": 550
+  },
+  {
+    "order_id": "#20251229031",
+    "status": "待處理",
+    "customer": "趙敏",
+    "order_time": "2025/12/29 11:45:00",
+    "amount": 10500
+  },
+  {
+    "order_id": "#20251230012",
+    "status": "已出貨",
+    "customer": "Tom H.",
+    "order_time": "2025/12/30 18:22:55",
+    "amount": 210
+  }
+]
