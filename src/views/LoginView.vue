@@ -37,7 +37,7 @@ const handleLogin = () => {
                         placeholder="輸入管理員密碼" 
                         required />
                 </div>
-                {{ userStore.isLogin ? 1 : 0 }}
+                <!-- {{ userStore.isLogin ? 1 : 0 }} -->
                 <button type="submit" class="login-btn">登入</button>
                 {{ userStore.errorMsg}}
             </form>
