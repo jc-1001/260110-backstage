@@ -46,7 +46,6 @@ const paginatedUsers = computed(() => {
 
 // 4. 跳轉邏輯
 const goToUpdate = (userId) => {
-
   router.push({ name: 'UserDetail', params: { id: userId } })
 }
 
@@ -56,6 +55,7 @@ const handleSearch = () => {
 }
 
 </script>
+
 <template>
   <div class="admin-users-page">
     <div class="page-header">
