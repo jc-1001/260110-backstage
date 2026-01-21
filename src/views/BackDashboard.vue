@@ -73,8 +73,8 @@ const top5Data = [
         <span class="quan-card__value">
           {{ quan.value }}
         </span>
-        <span v-if="quan.trend == 'up'" class='arrow-green'>▲</span>
-        <span v-if="quan.trend == 'down'" class="arrow-red">▼</span>
+        <span v-if="quan.trend == 'up'" class='arrow-green'>&nbsp;▲</span>
+        <span v-if="quan.trend == 'down'" class="arrow-red">&nbsp;▼</span>
       </div>
     </div>
   </section>
@@ -90,7 +90,9 @@ const top5Data = [
             </div>
           </span>
         </div>
-        <div class="trend__container"></div>
+        <div class="trend__container">
+          <img src="/public/images/dashBoard/chart.png" alt="">
+        </div>
       </div>
       <div class="trend-card">
         <div class="trend__header">
@@ -102,7 +104,9 @@ const top5Data = [
             </div>
           </span>
         </div>
-        <div class="trend__container"></div>
+        <div class="trend__container">
+          <img src="/public/images/dashBoard/chart.png" alt="">
+        </div>
       </div>
     </section>
     <section class="top5">
@@ -119,7 +123,7 @@ const top5Data = [
             <div class="top5-card__right">
               <div class="name">{{ product.name }}</div>
               <div class="price">${{ product.price }}</div>
-              <div class="star"></div>
+              <div class="star">⭐⭐⭐⭐⭐</div>
               <div class="sales">月銷量 > {{ product.sales }}</div>
             </div>
           </div>
@@ -135,13 +139,13 @@ const top5Data = [
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   column-gap: 20px;
-  border: solid 1px red;
+  // border: solid 1px red;
   margin-bottom: 20px;
 }
 
 .quan-card {
   padding: 10px;
-  border: solid 1px;
+  // border: solid 1px;
   background-color: white;
 }
 
@@ -163,11 +167,11 @@ const top5Data = [
 }
 
 .arrow-green {
-  color: green;
+  color: $primary;
 }
 
 .arrow-red {
-  color: red;
+  color: $accent;
 }
 
 .main {
@@ -180,7 +184,7 @@ const top5Data = [
   display: grid;
   grid-template-rows: 1fr 1fr;
   row-gap: 20px;
-  border: solid 1px red;
+  // border: solid 1px red;
 }
 
 .trend-card {
@@ -194,7 +198,8 @@ const top5Data = [
 .trend__header {
   display: flex;
   justify-content: space-between;
-  border: solid 1px;
+  align-items: center;
+  // border: solid 1px;
 }
 
 .trend__period-select {
@@ -207,6 +212,7 @@ const top5Data = [
   display: flex;
   justify-content: center;
   width: 50px;
+  padding: 2px 0;
   border-radius: 5px;
   cursor: pointer;
 }
@@ -217,12 +223,15 @@ const top5Data = [
 }
 
 .trend__container {
+  height: auto;
+  // border: solid 1px;
+}
+.trend__container img{
   height: 100%;
-  border: solid 1px;
 }
 
 .top5 {
-  border: solid 1px red;
+  // border: solid 1px red;
   background-color: white;
   padding: 10px;
 }
@@ -232,13 +241,14 @@ const top5Data = [
 }
 
 .top5__container {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: repeat(3,1fr);
   gap: 10px;
 }
 
 .top5-card {
-  border: solid 1px;
+  background-color: white;
+  // border: solid 1px;
 }
 
 .top5-card__title {
@@ -258,7 +268,7 @@ const top5Data = [
 
 .top5-card__right {
   width: calc(100% - 160px);
-  border: solid 1px blue;
+  // border: solid 1px blue;
 }
 
 .name {
@@ -278,7 +288,7 @@ const top5Data = [
 
 .sales {
   padding-top: 10px;
-  border-top: solid 1px;
+  // border-top: solid 1px;
   font-size: 12px;
 }
 </style>
