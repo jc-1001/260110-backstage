@@ -23,13 +23,17 @@ const routes = [
     path: '/users',
     name: 'UserList',
     component: () => import('../views/users/UserList.vue'),
-    meta: { title: '使用者管理' }
+    meta: { 
+      title: '使用者管理',
+      showSideBar: true,}
   },
   {
     path: '/users/:id',
     name: 'UserDetail',
     component: () => import('../views/users/UserDetail.vue'),
-    meta: { title: '使用者詳情' }
+    meta: { 
+      title: '使用者詳情',
+      showSideBar: true,}
   },
 
   // 4-5. 商品管理
