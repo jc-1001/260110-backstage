@@ -15,7 +15,9 @@ const routes = [
     path: '/',
     name: 'Dashboard',
     component: () => import('../views/BackDashboard.vue'),
-    meta: { title: '數據儀表板' }
+    meta: { title: '數據儀表板', 
+      showSideBar: true,
+    }
   },
 
   // 2-3. 使用者管理
