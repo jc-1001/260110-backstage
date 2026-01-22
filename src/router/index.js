@@ -15,7 +15,9 @@ const routes = [
     path: '/',
     name: 'Dashboard',
     component: () => import('../views/BackDashboard.vue'),
-    meta: { title: '數據儀表板',showSideBar: true }
+    meta: { title: '數據儀表板', 
+      showSideBar: true,
+    }
   },
 
   // 使用者管理
@@ -23,13 +25,17 @@ const routes = [
     path: '/users',
     name: 'UserList',
     component: () => import('../views/users/UserList.vue'),
-    meta: { title: '使用者管理',showSideBar: true, }
+    meta: { 
+      title: '使用者管理',
+      showSideBar: true,}
   },
   {
     path: '/users/:id',
     name: 'UserDetail',
     component: () => import('../views/users/UserDetail.vue'),
-    meta: { title: '使用者詳情',showSideBar: true }
+    meta: { 
+      title: '使用者詳情',
+      showSideBar: true,}
   },
 
   // 商品管理

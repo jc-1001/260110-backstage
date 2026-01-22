@@ -1,11 +1,30 @@
 <script setup>
 import { ref } from 'vue';
-import { useUserStore } from '@/stores/user';
-const userStore = useUserStore();
+import { useRouter } from 'vue-router'; 
+
+// import { useUserId } from '@/views/users/UserDetail.vue';
+// const userId = useUserId();
+
+const router = useRouter(); 
+
 const account = ref('');
 const password = ref('');
+
+// 內建帳密
+const ADMIN_ACCOUNT = 'Group1@unicare.com';
+const ADMIN_PASSWORD = '123456';
+
 const handleLogin = () => {
-    userStore.login(account.value, password.value)
+    if (account.value === ADMIN_ACCOUNT && password.value === ADMIN_PASSWORD) {
+        
+        // userId.login(account.value, password.value);
+        alert('登入成功');
+        router.push({ name: 'Dashboard' }); 
+        
+    } else {
+        alert('帳號或密碼錯誤，請重新輸入。');
+        password.value = '';
+    }
 }
 
 </script>
@@ -37,9 +56,9 @@ const handleLogin = () => {
                         placeholder="輸入管理員密碼" 
                         required />
                 </div>
-                {{ userStore.isLogin ? 1 : 0 }}
+                <!-- {{ userId.isLogin ? 1 : 0 }} -->
                 <button type="submit" class="login-btn">登入</button>
-                {{ userStore.errorMsg}}
+                <!-- {{ userId.errorMsg}} -->
             </form>
         </div>
     </div>
