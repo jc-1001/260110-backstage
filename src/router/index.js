@@ -20,7 +20,7 @@ const routes = [
     }
   },
 
-  // 2-3. 使用者管理
+  // 使用者管理
   {
     path: '/users',
     name: 'UserList',
@@ -38,7 +38,7 @@ const routes = [
       showSideBar: true,}
   },
 
-  // 4-5. 商品管理
+  // 商品管理
   {
     path: '/products',
     name: 'ProductList',
@@ -46,13 +46,21 @@ const routes = [
     meta: { title: '商品管理' }
   },
   {
+    // 新增模式：沒有id
+    path: '/products/add', 
+    name: 'productAdd',
+    component: () => import('../views/products/ProductEdit.vue')
+  },
+  {
+    // 編輯模式：有id
     path: '/products/edit/:id?',
     name: 'ProductEdit',
     component: () => import('../views/products/ProductEdit.vue'),
     meta: { title: '編輯商品' }
   },
+  
 
-  // 6-7. 訂單管理
+  // 訂單管理
   {
     path: '/orders',
     name: 'OrderList',
@@ -60,13 +68,13 @@ const routes = [
     meta: { title: '訂單管理' }
   },
   {
-    path: '/orders/:id',
-    name: 'OrderDetail',
-    component: () => import('../views/orders/OrderDetail.vue'),
+    path: '/orders/edit/:id?',
+    name: 'OrderEdit',
+    component: () => import('../views/orders/OrderEdit.vue'),
     meta: { title: '訂單詳情' }
   },
 
-  // 8-9. 系統通知
+  // 系統通知
   {
     path: '/notices',
     name: 'NoticeList',

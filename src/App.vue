@@ -23,7 +23,7 @@ const isCollapsed = ref(false)
 .admin-container {
   display: flex; // 關鍵：讓 Sidebar 和 Wrapper 左右水平排列
   min-height: 100vh;
-  width: 100vw;
+  // width: 100vw;
   background-color: $primaryLight;
 }
 
