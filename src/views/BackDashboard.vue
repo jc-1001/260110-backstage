@@ -1,6 +1,9 @@
 <script setup>
 import AdminHeader from '@/components/admin/adminHeader.vue'
 import { ref } from 'vue'
+import milkImg from '@/assets/images/dashboard/milk.png'
+import eyeImg from '@/assets/images/dashBoard/eye.png'
+import soyImg from '@/assets/images/dashBoard/soy.png'
 
 const quanData = ref([
   {
@@ -44,7 +47,7 @@ const top5Data = [
     price: '180',
     star: '5',
     sales: '250',
-    image: '/images/dashBoard/milk.png'
+    image: milkImg
   },
   {
     id: '2',
@@ -52,7 +55,7 @@ const top5Data = [
     price: '2450',
     star: '5',
     sales: '200',
-    image: '/images/dashBoard/eye.png'
+    image: eyeImg
   },
   {
     id: '3',
@@ -60,7 +63,7 @@ const top5Data = [
     price: '1600',
     star: '5',
     sales: '150',
-    image: '/images/dashBoard/soy.png'
+    image: soyImg
   },
 ]
 
