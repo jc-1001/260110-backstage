@@ -9,7 +9,7 @@ const isCollapsed = ref(false)
 </script>
 <template>
   <div class="admin-container">
-    <adminNavBar />
+    <adminNavBar v-if="$route.meta.showSideBar" />
     <div class="main-wrapper">
       <main class="admin-main">
         <adminHeader v-if="$route.meta.showAdminHeader" />

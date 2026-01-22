@@ -1,6 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
+  // 0. 後台登入 - 獨立頁面
+  {
+    path: '/adminlogin',
+    name: 'Adminlogin',
+    component: () => import('../views/LoginView.vue'),
+    meta: { title: '後台登入', 
+      showSideBar: false,
+     }
+  },
   // 1. 數據儀表板 - 獨立頁面
   {
     path: '/',
