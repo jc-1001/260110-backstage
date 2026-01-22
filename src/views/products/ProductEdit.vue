@@ -1,12 +1,20 @@
 <script setup>
-import { ref } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref, computed, onMounted, onBeforeUnmount, shallowRef } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Delete, ArrowLeft, CircleCheck } from '@element-plus/icons-vue'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 import '@wangeditor/editor/dist/css/style.css' // 引入 CSS 樣式
-import { onBeforeUnmount, shallowRef, onMounted } from 'vue'
-import { ElMessageBox } from 'element-plus'
 import adminHeader from '@/components/admin/adminHeader.vue'
+
+const route = useRoute()
+const router = useRouter()
+
+// 抓取網址上的id，如果有值就是編輯模式
+const productId = route.params.id
+
+// 判斷是否為編輯模式
+const isEditMode = computed(() => !!productId) // 轉成布林值
 
 // 處理捨棄按鈕邏輯
 const handleDiscard = () => {
@@ -16,6 +24,7 @@ const handleDiscard = () => {
     type: 'warning',
   }).then(() => {
     // 執行返回邏輯
+    router.back() // 或是 router.push('/products')
     console.log('已捨棄內容')
   })
 }
@@ -30,8 +39,17 @@ const handleSave = () => {
     spec: specHtml.value,
     shipping: shippingHtml.value,
   }
-  console.log('準備提交的數據：', finalData)
-  ElMessage.success('商品新增成功！')
+  
+  if (isEditMode.value) {
+    console.log('正在執行更新 (PUT)...', finalData)
+    ElMessage.success('商品更新成功！')
+  } else {
+    console.log('正在執行新增 (POST)...', finalData)
+    ElMessage.success('商品新增成功！')
+  }
+  
+  // 儲存後通常會跳轉回列表
+  // router.push('/products')
 }
 
 // 定義三個區塊的 HTML 內容
@@ -69,12 +87,16 @@ onBeforeUnmount(() => {
   })
 })
 
+// 定義表單資料 (補齊了 template 中用到的欄位，避免回填時遺漏)
 const form = ref({
   name: '',
   category: '',
   price: '',
-  status: '',
+  status: '', // 上架/下架
   stock: '',
+  decsShort: '', // 商品簡介
+  Spec: '',      // 產品規格 (輸入框)
+  tag: ''        // 商品標籤
 })
 
 const imageList = ref([
@@ -87,28 +109,21 @@ const imageList = ref([
 ])
 
 const categoryOptions = [
+  { value: '維他命', label: '維他命' },
+  { value: '葉黃素', label: '葉黃素' },
+  { value: '關鍵保健', label: '關鍵保健' },
+  { value: '機能保健', label: '機能保健' },
   { value: '骨骼關節保養', label: '骨骼關節保養' },
   { value: '心血管循環', label: '心血管循環' },
   { value: '晶亮護眼', label: '晶亮護眼' },
 ]
 
 const statusOptions = [
-  { value: '上架', label: '上架' },
+  { value: '上架', label: '上架' }, // 注意這裡 value 對應到 form.status
   { value: '下架', label: '下架' },
 ]
-// const tagOptions = [
-//   { value: '熱銷', label: '熱銷' },
-//   { value: '關鍵保養', label: '關鍵保養' },
-//   { value: '全素可食', label: '全素可食' },
-//   { value: '強力舒緩', label: '強力舒緩' },
-//   { value: '熱銷冠軍', label: '熱銷冠軍' },
-//   { value: '日本專利', label: '日本專利' },
-//   { value: '晚間保養', label: '晚間保養' },
-//   { value: '換季必備', label: '換季必備' },
-//   { value: '超級維生素', label: '超級維生素' },
-//   { value: '兒童可食', label: '兒童可食' },
-//   { value: '全家適用', label: '全家適用' },
-// ]
+
+// 圖片處理邏輯
 const handleAvatarSuccess = (index, uploadFile) => {
   if (uploadFile.raw) {
     imageList.value[index].url = URL.createObjectURL(uploadFile.raw)
@@ -127,14 +142,74 @@ const removeImage = (index) => {
   imageList.value[index].url = ''
   ElMessage.success('圖片已移除')
 }
+
+// --- 新增：編輯模式的資料回填邏輯 ---
+const fetchProductData = (id) => {
+  console.log(`正在編輯 ID: ${id} 的商品，正在回填資料...`)
+
+  // 模擬從後端抓回來的舊資料
+  const mockData = {
+    name: '維他命C 1000mg',
+    decsShort: '每日一顆，增強免疫力',
+    category: '維他命',
+    price: '875',
+    spec: '60粒/瓶', // 對應 form.Spec
+    stock: '120',
+    status: '上架',
+    tag: '熱銷冠軍、全家適用',
+    // 模擬圖片網址 (這裡用 public 資料夾的路徑)
+    images: [
+      '/images/shop/product_01.jpg',
+      '/images/shop/product_02.jpg'
+    ],
+    // 模擬富文本內容
+    intro: '<p>這是舊的產品介紹...</p><ul><li>特點1</li><li>特點2</li></ul>',
+    specHtml: '<p>詳細規格內容...</p>', 
+    shipping: '<p>宅配、超商取貨</p>'
+  }
+
+  // 1. 回填基本欄位
+  form.value.name = mockData.name
+  form.value.decsShort = mockData.decsShort
+  form.value.category = mockData.category
+  form.value.price = mockData.price
+  form.value.Spec = mockData.spec
+  form.value.stock = mockData.stock
+  form.value.status = mockData.status
+  form.value.tag = mockData.tag
+
+  // 2. 回填圖片 (保留 imageList 結構，只填入有值的)
+  if (mockData.images) {
+    mockData.images.forEach((url, index) => {
+      // 確保不超過 imageList 的長度 (6張)
+      if (imageList.value[index]) {
+        imageList.value[index].url = url
+      }
+    })
+  }
+
+  // 3. 回填編輯器內容
+  // 由於編輯器初始化需要一點時間，這裡直接賦值給綁定的 ref 即可，WangEditor 會監聽
+  introHtml.value = mockData.intro
+  specHtml.value = mockData.specHtml
+  shippingHtml.value = mockData.shipping
+}
+
+// 初始化：如果是編輯模式，就撈資料
+onMounted(() => {
+  if (isEditMode.value) {
+    fetchProductData(productId)
+  }
+})
+
 </script>
 
 <template>
-  <adminHeader title="新增商品" />
-  <!-- 按鈕區 -->
+  <adminHeader :title="isEditMode ? '編輯商品' : '新增商品'" />
+  
   <div class="top-tool-bar">
     <div class="left-actions">
-      <router-link to="/products/" custom v-slot="{ navigate }">
+      <router-link to="/products" custom v-slot="{ navigate }">
         <el-button class="back-btn" :icon="ArrowLeft" @click="navigate">返回</el-button>
       </router-link>
     </div>
@@ -144,9 +219,12 @@ const removeImage = (index) => {
         >捨棄</el-button
       >
 
-      <el-button class="save-btn" :icon="CircleCheck" @click="handleSave">確定新增</el-button>
+      <el-button class="save-btn" :icon="CircleCheck" @click="handleSave">
+        {{ isEditMode ? '儲存修改' : '確定新增' }}
+      </el-button>
     </div>
   </div>
+  
   <main class="product-page">
     <section class="left">
       <section class="product-upload-container">
@@ -181,7 +259,7 @@ const removeImage = (index) => {
         <h3 class="section-title">庫存資訊</h3>
         <div class="stock-num">
           <span>庫存數量</span>
-          <span>0</span>
+          <span>{{ form.stock || 0 }}</span>
         </div>
         <el-button class="add-stock-button">調整庫存</el-button>
       </section>
@@ -224,7 +302,6 @@ const removeImage = (index) => {
       <div class="row-group">
         <div class="field-item">
           <h3 class="section-title">狀態</h3>
-          <!-- <el-select > -->
           <el-radio-group v-model="form.status" placeholder="請選擇狀態" style="width: 100%">
             <el-radio
               v-for="item in statusOptions"
@@ -240,7 +317,6 @@ const removeImage = (index) => {
         </div>
       </div>
       <hr />
-      <!-- 富文本輸入框 -->
       <div class="edit-block">
         <div class="desc-block">
           <h3 class="section-title">產品介紹</h3>
@@ -286,6 +362,7 @@ const removeImage = (index) => {
 </template>
 
 <style scoped lang="scss">
+// 這裡保留原本所有同學寫的 CSS 樣式
 .left {
   display: flex;
   flex-direction: column;
