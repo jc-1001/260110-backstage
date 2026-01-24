@@ -6,16 +6,18 @@ const routes = [
     path: '/adminlogin',
     name: 'Adminlogin',
     component: () => import('../views/LoginView.vue'),
-    meta: { title: '後台登入', 
+    meta: {
+      title: '後台登入',
       showSideBar: false,
-     }
+    }
   },
   // 1. 數據儀表板 - 獨立頁面
   {
     path: '/',
     name: 'Dashboard',
     component: () => import('../views/BackDashboard.vue'),
-    meta: { title: '數據儀表板', 
+    meta: {
+      title: '數據儀表板',
       showSideBar: true,
     }
   },
@@ -25,17 +27,19 @@ const routes = [
     path: '/users',
     name: 'UserList',
     component: () => import('../views/users/UserList.vue'),
-    meta: { 
+    meta: {
       title: '使用者管理',
-      showSideBar: true,}
+      showSideBar: true,
+    }
   },
   {
     path: '/users/:id',
     name: 'UserDetail',
     component: () => import('../views/users/UserDetail.vue'),
-    meta: { 
+    meta: {
       title: '使用者詳情',
-      showSideBar: true,}
+      showSideBar: true,
+    }
   },
 
   // 商品管理
@@ -43,36 +47,36 @@ const routes = [
     path: '/products',
     name: 'ProductList',
     component: () => import('../views/products/ProductList.vue'),
-    meta: { title: '商品管理',showSideBar: true }
+    meta: { title: '商品管理', showSideBar: true }
   },
   {
     // 新增模式：沒有id
-    path: '/products/add', 
+    path: '/products/add',
     name: 'productAdd',
     component: () => import('../views/products/ProductEdit.vue'),
-    meta: { title: '新增商品',showSideBar: true }
+    meta: { title: '新增商品', showSideBar: true }
   },
   {
     // 編輯模式：有id
     path: '/products/edit/:id?',
     name: 'ProductEdit',
     component: () => import('../views/products/ProductEdit.vue'),
-    meta: { title: '編輯商品',showSideBar: true }
+    meta: { title: '編輯商品', showSideBar: true }
   },
-  
+
 
   // 訂單管理
   {
     path: '/orders',
     name: 'OrderList',
     component: () => import('../views/orders/OrderList.vue'),
-    meta: { title: '訂單管理',showSideBar: true, }
+    meta: { title: '訂單管理', showSideBar: true, }
   },
   {
     path: '/orders/edit/:id?',
     name: 'OrderEdit',
     component: () => import('../views/orders/OrderEdit.vue'),
-    meta: { title: '訂單詳情',showSideBar: true }
+    meta: { title: '訂單詳情', showSideBar: true }
   },
 
   // 系統通知
@@ -80,13 +84,13 @@ const routes = [
     path: '/notices',
     name: 'NoticeList',
     component: () => import('../views/notices/NoticeList.vue'),
-    meta: { title: '系統通知',showSideBar: true }
+    meta: { title: '系統通知', showSideBar: true }
   },
   {
     path: '/notices/edit/:id?',
     name: 'NoticeEdit',
     component: () => import('../views/notices/NoticeEdit.vue'),
-    meta: { title: '編輯通知',showSideBar: true }
+    meta: { title: '編輯通知', showSideBar: true }
   }
 ]
 

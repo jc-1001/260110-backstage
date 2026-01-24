@@ -37,7 +37,6 @@ const currentPage = ref(1) // 當前頁碼
 const pageSize = ref(10) // 每頁顯示幾筆
 
 // 搜尋框輸入資料過濾邏輯
-//修正過濾與分頁邏輯 (加上 .slice 做分頁切片)
 const filterTableData = computed(() => {
   // 先過濾搜尋內容
   const filtered = noticesList.value.filter(
@@ -86,6 +85,11 @@ const getTagClass = (type) => {
   if (type === '系統公告') return 'tag-teal'
   if (type === '商城活動') return 'tag-event'
   return ''
+}
+// 編輯按鈕
+// 記得在 template 傳入 scope.row.id
+const goEditNotice = (id) => {
+  router.push(`/notices/edit/${id}`)
 }
 </script>
 <template>
