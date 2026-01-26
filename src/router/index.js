@@ -3,7 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 const routes = [
   // 0. 後台登入 - 獨立頁面
   {
-    path: '/adminlogin',
+    path: '/',
     name: 'Adminlogin',
     component: () => import('../views/LoginView.vue'),
     meta: { title: '後台登入', 
@@ -12,7 +12,7 @@ const routes = [
   },
   // 1. 數據儀表板 - 獨立頁面
   {
-    path: '/',
+    path: '/Dashboard',
     name: 'Dashboard',
     component: () => import('../views/BackDashboard.vue'),
     meta: { title: '數據儀表板', 
@@ -99,5 +99,19 @@ router.beforeEach(async (to, from) => {
     document.title = `${to.meta.title} - UniCare`
   }
 })
+
+// --- 新增：導航守衛 (Navigation Guard) ---
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = localStorage.getItem('isAdminLogin') === 'true';
+
+  // 如果要去的地方不是登入頁 (to.name !== 'Adminlogin') 且 使用者未登入
+  if (to.name !== 'Adminlogin' && !isAuthenticated) {
+    // 強制跳轉到登入頁
+    next({ name: 'Adminlogin' });
+  } else {
+    // 否則放行
+    next();
+  }
+});
 
 export default router

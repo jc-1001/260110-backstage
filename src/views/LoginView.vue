@@ -10,17 +10,24 @@ const router = useRouter();
 const account = ref('');
 const password = ref('');
 
-// 內建帳密
-const ADMIN_ACCOUNT = 'Group1@unicare.com';
-const ADMIN_PASSWORD = '123456';
+// 1. 將單一帳號改為管理員清單 (陣列)
+const ADMIN_ACCOUNTS = [
+    'ziyi1114@gmail.com',
+    'macio6898@gmail.com',  
+    'bruce3721180@gmail.com',
+    'yuelinnnnn@gmail.com',
+    'niniabc920405@gmail.com',
+    'blue.bubble.o0.0c@gmail.com'
+];
+
+const ADMIN_PASSWORD = '123456'; // 若 6 位密碼相同
 
 const handleLogin = () => {
-    if (account.value === ADMIN_ACCOUNT && password.value === ADMIN_PASSWORD) {
-        
-        // userId.login(account.value, password.value);
+    // 2. 使用 includes 檢查帳號是否存在於陣列中
+    if (ADMIN_ACCOUNTS.includes(account.value) && password.value === ADMIN_PASSWORD) {
         alert('登入成功');
+        localStorage.setItem('isAdminLogin', 'true');// 登入成功時存入標記
         router.push({ name: 'Dashboard' }); 
-        
     } else {
         alert('帳號或密碼錯誤，請重新輸入。');
         password.value = '';
