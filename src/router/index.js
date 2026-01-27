@@ -100,7 +100,7 @@ router.beforeEach(async (to, from) => {
   }
 })
 
-// --- 新增：導航守衛 (Navigation Guard) ---
+// --- 導航守衛 ---
 router.beforeEach((to, from, next) => {
   const isAuthenticated = localStorage.getItem('isAdminLogin') === 'true';
 

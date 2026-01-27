@@ -20,7 +20,7 @@ const ADMIN_ACCOUNTS = [
     'blue.bubble.o0.0c@gmail.com'
 ];
 
-const ADMIN_PASSWORD = '123456'; // 若 6 位密碼相同
+const ADMIN_PASSWORD = '123456'; 
 
 const handleLogin = () => {
     // 2. 使用 includes 檢查帳號是否存在於陣列中
