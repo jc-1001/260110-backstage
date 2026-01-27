@@ -63,7 +63,7 @@ const deleteUser = (userId) => {
             <th>姓名</th>
             <th>電子信箱</th>
             <th>聯絡電話</th>
-            <th>操作項目</th>
+            <th>帳號狀態</th>
           </tr>
         </thead>
         <tbody>
