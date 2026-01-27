@@ -1,9 +1,18 @@
 <script setup>
-import '@wangeditor/editor/dist/css/style.css' // 引入 CSS 樣式
-import { onBeforeUnmount, ref, shallowRef, onMounted } from 'vue'
+import '@wangeditor/editor/dist/css/style.css'
+import { onBeforeUnmount, ref, shallowRef, onMounted, computed } from 'vue'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 import adminHeader from '@/components/admin/adminHeader.vue'
 import { ArrowLeft, Delete, CircleCheck } from '@element-plus/icons-vue'
+import { useRoute, useRouter } from 'vue-router'
+import { publicApi } from '@/utils/publicApi'
+
+const route = useRoute()
+const router = useRouter()
+const noticeId = route.params.id // 攫取網址上的id
+
+// 判斷是否為為編輯模式
+const isEditMode = computed(() => !!noticeId)
 
 // 編輯器實例，必須用 shallowRef
 const editorRef = shallowRef()
@@ -72,11 +81,58 @@ watch(isNow, (newVal) => {
     slcDateStart.value = today
   }
 })
+
+// 模擬/請求資料並填入表單(利用async/await)
+const fetchNoticeDetail = async () => {
+  if (!isEditMode.value) return
+
+  try {
+    // 取得所有公告資料
+    const response = await publicApi.get('../../../public/data/adminNotice.json')
+    const allData = response.data
+    console.log(response) // 找到陣列15筆資料
+
+    if (allData && Array.isArray(allData)) {
+      // 根據網址上的 noticeId 找出對應的那一筆
+      // noticeId 是字串，item.id 是數字，轉為 String 比對
+      const detail = allData.find((item) => String(item.id) === String(noticeId))
+
+      // 渲染回頁面
+      if (detail) {
+        // console.log(detail) //選取的該筆資料
+        input.value = detail.titleName
+        value.value = detail.type
+
+        // Element Plus DatePicker 接受 Date 物件或符合格式的字串
+        //  JSON 轉成 Date 物件
+        slcDateStart.value = detail.date ? new Date(detail.date) : ''
+
+        // 如果 JSON 裡有內容欄位則填入，沒有則顯示預設內容
+        valueHtml.value = detail.content || `<p>正在編輯：${detail.titleName}</p>`
+      } else {
+        console.warn('找不到對應 ID 的公告資料')
+      }
+    }
+  } catch (error) {
+    console.error('抓取詳情失敗:', error)
+  }
+}
+
+onMounted(() => {
+  fetchNoticeDetail()
+})
+
+// 刪除與儲存動作
+const handleDelete = () => {
+  // 可能會調用 API
+  confirm('確定要刪除嗎？')
+  router.push('/notices')
+}
 </script>
 
 <template>
   <main>
-    <adminHeader title="新增系統訊息" />
+    <adminHeader :title="isEditMode ? '編輯系統訊息' : '新增系統訊息'" />
     <!-- 按鈕區 -->
     <div class="mes-tool-bar">
       <router-link to="/notices/" custom v-slot="{ navigate }">

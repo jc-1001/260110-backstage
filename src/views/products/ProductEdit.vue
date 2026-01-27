@@ -6,6 +6,8 @@ import { Plus, Delete, ArrowLeft, CircleCheck } from '@element-plus/icons-vue'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 import '@wangeditor/editor/dist/css/style.css' // 引入 CSS 樣式
 import adminHeader from '@/components/admin/adminHeader.vue'
+import productImg1 from '@/assets/images/shop/product_01.jpg'
+import productImg2 from '@/assets/images/shop/product_02.jpg'
 
 const route = useRoute()
 const router = useRouter()
@@ -159,8 +161,9 @@ const fetchProductData = (id) => {
     tag: '熱銷冠軍、全家適用',
     // 模擬圖片網址 (這裡用 public 資料夾的路徑)
     images: [
-      '/images/shop/product_01.jpg',
-      '/images/shop/product_02.jpg'
+      productImg1,
+      productImg2,
+
     ],
     // 模擬富文本內容
     intro: '<p>這是舊的產品介紹...</p><ul><li>特點1</li><li>特點2</li></ul>',

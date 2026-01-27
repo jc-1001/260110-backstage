@@ -1,6 +1,9 @@
 <script setup>
 import AdminHeader from '@/components/admin/adminHeader.vue'
 import { ref } from 'vue'
+import milkImg from '@/assets/images/dashboard/milk.png'
+import eyeImg from '@/assets/images/dashBoard/eye.png'
+import soyImg from '@/assets/images/dashBoard/soy.png'
 
 const quanData = ref([
   {
@@ -31,14 +34,20 @@ const periodBtn = ['月', '季', '年']
 const activeBtnUsers = ref('月')
 const activeBtnOrders = ref('月')
 
+// 圖片處理
+const processImage = (path) => {
+  const baseUrl = import.meta.env.BASE_URL || '/'
+  return baseUrl + path.replace(/^\//, '')
+}
+
 const top5Data = [
   {
     id: '1',
-    name: '鈣好多牛奶 1800ml',
+    name: '維他命C 1000mg',
     price: '180',
     star: '5',
     sales: '250',
-    image: '/public/images/dashBoard/milk.png'
+    image: milkImg
   },
   {
     id: '2',
@@ -46,7 +55,7 @@ const top5Data = [
     price: '2450',
     star: '5',
     sales: '200',
-    image: '/public/images/dashBoard/eye.png'
+    image: eyeImg
   },
   {
     id: '3',
@@ -54,7 +63,7 @@ const top5Data = [
     price: '1600',
     star: '5',
     sales: '150',
-    image: '/public/images/dashBoard/soy.png'
+    image: soyImg
   },
 ]
 
@@ -264,6 +273,9 @@ const top5Data = [
   width: 150px;
   height: 150px;
   background-color: gray;
+  img {
+    object-fit: cover;
+  }
 }
 
 .top5-card__right {
