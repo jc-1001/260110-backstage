@@ -41,15 +41,14 @@ const deleteUser = (userId) => {
   <div class="admin-user-list">
     <header class="admin-header">
       <div class="title-section">
-        <h2>使用者管理系統</h2>
-        <span class="user-count">共 {{ users.length }} 位會員</span>
+        <h2>使用者管理</h2>
       </div>
       
       <div class="action-section">
         <input 
           type="text" 
           v-model="searchQuery" 
-          placeholder="搜尋姓名或 Email..."
+          placeholder="搜尋使用者"
           class="search-input"
         >
       </div>
@@ -59,22 +58,21 @@ const deleteUser = (userId) => {
       <table class="user-table">
         <thead>
           <tr>
-            <th>會員編號</th>
             <th>姓名</th>
             <th>電子信箱</th>
-            <th>聯絡電話</th>
+            <th>帳號建立時間</th>
             <th>帳號狀態</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="user in filteredUsers" :key="user.id">
-            <td class="id-cell">{{ user.member_id }}</td>
-            <td class="name-cell">{{ user.full_name }}</td>
-            <td>{{ user.email }}</td>
-            <td>{{ user.phone_number || '未填寫' }}</td>
-            <td class="actions">
-              <button @click="viewDetail(user.id)" class="btn-detail">查看詳情</button>
-              <button @click="deleteUser(user.id)" class="btn-delete">刪除</button>
+            <td class="id-cell">{{ user.full_name }}</td>
+            <td class="name-cell">{{ user.email }}</td>
+            <td>{{ user.created_at }}</td>
+            <td>
+              <span :class="['status-badge', user.is_active ? 'active' : 'disabled']">
+                {{ user.is_active ? '● 啟用中' : '● 已停用' }}
+              </span>
             </td>
           </tr>
           <tr v-if="filteredUsers.length === 0">
@@ -83,6 +81,7 @@ const deleteUser = (userId) => {
         </tbody>
       </table>
     </div>
+        <span class="user-count">共 {{ users.length }} 位會員</span>
   </div>
 </template>
 
@@ -92,7 +91,6 @@ $border-color: #e0e0e0;
 
 .admin-user-list {
   padding: 40px;
-  min-width: 1024px; // 強制最小寬度，防止跑版
   background-color: #fcfcfc;
 }
 
@@ -156,37 +154,26 @@ $border-color: #e0e0e0;
   tr:hover { background-color: #f9fbfb; }
 }
 
-.actions {
-  display: flex;
-  gap: 8px;
-
-  button {
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 13px;
-    border: 1px solid transparent;
-    transition: 0.2s;
-  }
-
-  .btn-detail {
-    background: $primary-teal;
-    color: white;
-    &:hover { background: darken($primary-teal, 5%); }
-  }
-
-  .btn-delete {
-    background: white;
-    border-color: #ff4d4f;
-    color: #ff4d4f;
-    &:hover { background: #ff4d4f; color: white; }
-  }
-
-}
-
 .empty-state {
   text-align: center;
   padding: 50px;
   color: #999;
+}
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: bold;
+  display: inline-block;
+
+  // 啟用中：顯示綠色
+  &.active {
+    color: #2e7d32; // 深綠色文字
+  }
+
+  // 已停用：顯示橘色
+  &.disabled {
+    color: #ef6c00; // 深橘色文字
+  }
 }
 </style>
