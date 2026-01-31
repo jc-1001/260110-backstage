@@ -14,6 +14,20 @@ onMounted(() => {
   }
 });
 
+// 分頁狀態
+const currentPage = ref(1);
+const itemsPerPage = 20;
+
+// 計算總使用者人數
+const totalUsers = computed(() => filteredUsers.value.length);
+
+// 計算目前顯示的範圍
+const startItem = computed(() => totalUsers.value === 0 ? 0 : (currentPage.value - 1) * itemsPerPage + 1);
+const endItem = computed(() => Math.min(currentPage.value * itemsPerPage, totalUsers.value));
+
+// 計算總頁數
+const totalPages = computed(() => Math.ceil(totalUsers.value / itemsPerPage));
+
 // 搜尋過濾
 const filteredUsers = computed(() => {
   return users.value.filter(user => 
@@ -21,6 +35,22 @@ const filteredUsers = computed(() => {
     user.email.includes(searchQuery.value)
   );
 });
+
+// 表格實際要顯示的資料（分頁後的資料）
+const paginatedUsers = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  return filteredUsers.value.slice(start, end);
+});
+
+// 切換頁面
+const changePage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+    // 切換頁面時自動回到頂端
+    window.scrollTo(0, 0);
+  }
+};
 
 // 跳轉詳情
 const viewDetail = (userId) => {
@@ -81,7 +111,32 @@ const deleteUser = (userId) => {
         </tbody>
       </table>
     </div>
-        <span class="user-count">共 {{ users.length }} 位會員</span>
+    <div class="pagination-footer">
+        <div class="pagination-status">
+          共 {{ totalUsers }} 位使用者 | 目前顯示 {{ startItem }} 至 {{ endItem }} 位
+        </div>
+
+        <div class="pagination-nav">
+          <button class="nav-btn prev" @click="changePage(currentPage - 1)" :disabled="currentPage === 1">
+            <i class="fas fa-chevron-left"> < </i>
+          </button>
+          
+          <button 
+            v-for="page in totalPages" 
+            :key="page"
+            @click="changePage(page)"
+            :class="['page-num', { active: currentPage === page }]"
+          >
+            {{ page }}
+          </button>
+
+          <button class="nav-btn next" @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages">
+            <i class="fas fa-chevron-right"> > </i>
+          </button>
+        </div>
+      </div>
+
+      <tr v-for="user in paginatedUsers" :key="user.id"> ... </tr>
   </div>
 </template>
 
@@ -175,5 +230,77 @@ $border-color: #e0e0e0;
   &.disabled {
     color: #ef6c00; // 深橘色文字
   }
+}
+
+.pagination-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 30px;
+}
+
+.pagination-status {
+  color: #2E6669;
+  font-size: 14px;
+}
+
+.pagination-nav {
+  display: flex;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+
+  button {
+    border: none;
+    border-right: 1px solid #ddd;
+    background: white;
+    height: 40px;
+    min-width: 40px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s;
+
+    &:last-child { border-right: none; }
+    
+    // 頁碼
+    &.page-num {
+      color: #333;
+      padding: 0 15px;
+      
+      &.active {
+        background-color: #FFF3E0; // 輔色
+        color: #333;
+        font-weight: bold;
+      }
+    }
+
+    // 上下頁深青色樣式
+    &.nav-btn {
+      background-color: #2E6669; // 主色
+      color: white;
+      
+      &:disabled {
+        background-color: #8bb1b3;
+        cursor: not-allowed;
+      }
+    }
+
+    &:hover:not(:disabled) {
+      background-color: #f5f5f5;
+      &.nav-btn { background-color: #245254; }
+    }
+  }
+}
+.search-input {
+  width: 300px;
+  padding: 10px 15px 10px 40px; // 左側增加 padding 留給 icon 空間
+  font-size: 14px;
+  
+  // 加入放大鏡圖示
+  background-image: url('@/assets/images/common/icon/Group 116.png');
+  background-repeat: no-repeat;
+  background-position: 12px center; // 控制圖示位置
+  background-size: 16px;
+
 }
 </style>
