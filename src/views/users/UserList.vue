@@ -51,6 +51,13 @@ onMounted(() => {
       currentPage.value = page;
     }
   };
+  // UserList.vue 的跳轉邏輯
+const goToDetail = (user) => {
+  router.push({ 
+    name: 'UserDetail', 
+    params: { memberId: user.member_id } // 標籤叫 memberId，值給 member_id
+  });
+};
 </script>
 
 <template>
@@ -81,17 +88,22 @@ onMounted(() => {
           </tr>
         </thead>
         <tbody>
-  <tr v-for="user in paginatedUsers" :key="user.id">
-    <td class="id-cell">{{ user.full_name }}</td>
-    <td class="name-cell">{{ user.email }}</td>
-    <td>{{ user.created_at }}</td>
-    <td>
-      <span :class="['status-badge', user.account_status == 1 ? 'active' : 'disabled']">
-        {{ user.account_status == 1 ? '● 啟用中' : '● 已停用' }}
-      </span>
-    </td>
-  </tr>
-</tbody>
+          <tr 
+            v-for="user in paginatedUsers" 
+            :key="user.member_id" 
+            @click="router.push({ name: 'UserDetail', params: { memberId: user.member_id } })"
+            class="clickable-row"
+          >
+            <td class="id-cell">{{ user.full_name }}</td>
+            <td class="name-cell">{{ user.email }}</td>
+            <td>{{ user.created_at }}</td>
+            <td>
+              <span :class="['status-badge', user.account_status == 1 ? 'active' : 'disabled']">
+                {{ user.account_status == 1 ? '● 啟用中' : '● 已停用' }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
       </table>
     </div>
     <div class="pagination-footer">
@@ -118,8 +130,7 @@ onMounted(() => {
           </button>
         </div>
       </div>
-
-      <tr v-for="user in paginatedUsers" :key="user.id"> ... </tr>
+      <tr v-for="user in paginatedUsers" :key="user.id">  </tr>
   </div>
 </template>
 
@@ -284,6 +295,7 @@ $border-color: #e0e0e0;
   background-repeat: no-repeat;
   background-position: 12px center; // 控制圖示位置
   background-size: 16px;
-
 }
+.clickable-row { cursor: pointer; transition: background 0.2s; }
+.clickable-row:hover { background-color: #f0f7f7 !important; }
 </style>
