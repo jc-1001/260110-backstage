@@ -33,7 +33,7 @@ const routes = [
     }
   },
   {
-    path: '/users/:memberId', // 這裡定義了變數名稱叫 memberId
+    path: '/users/:memberId', // 
     name: 'UserDetail',
     component: () => import('../views/users/UserDetail.vue'),
     meta: {
