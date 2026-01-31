@@ -1,70 +1,56 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
-import { useRouter } from 'vue-router';
+  import { ref, onMounted, computed } from 'vue';
+  import { useRouter } from 'vue-router';
+  import axios from 'axios';
+  import { API_ENDPOINTS } from '@/config/apiConfig';
 
-const router = useRouter();
-const users = ref([]);
-const searchQuery = ref('');
+  const router = useRouter();
+  const users = ref([]);
+  const searchQuery = ref('');
 
-// 載入資料
+  // UserList.vue 中的 fetchUsers 修改
+  const fetchUsers = async () => {
+    try {
+      // 加上時間戳記 t=${new Date().getTime()}，防止瀏覽器緩存舊資料
+      const res = await axios.get(`http://localhost:8888/unicare_api/member/user_api.php?t=${new Date().getTime()}`);
+      users.value = res.data; 
+      console.log("最新大水庫資料：", users.value);
+    } catch (error) {
+      console.error("連線失敗：", error);
+    }
+  };
+
 onMounted(() => {
-  const data = localStorage.getItem('allUsers');
-  if (data) {
-    users.value = JSON.parse(data);
-  }
+  fetchUsers(); // 確保每次進來後台管理，都先去大水庫提水
 });
 
-// 分頁狀態
-const currentPage = ref(1);
-const itemsPerPage = 20;
+  // 2. 分頁與搜尋邏輯
+  const currentPage = ref(1);
+  const itemsPerPage = 20;
 
-// 計算總使用者人數
-const totalUsers = computed(() => filteredUsers.value.length);
+  const filteredUsers = computed(() => {
+    if (!searchQuery.value) return users.value;
+    return users.value.filter(user => 
+      user.full_name.includes(searchQuery.value) || 
+      user.email.includes(searchQuery.value)
+    );
+  });
 
-// 計算目前顯示的範圍
-const startItem = computed(() => totalUsers.value === 0 ? 0 : (currentPage.value - 1) * itemsPerPage + 1);
-const endItem = computed(() => Math.min(currentPage.value * itemsPerPage, totalUsers.value));
+  const totalUsers = computed(() => filteredUsers.value.length);
+  const totalPages = computed(() => Math.ceil(totalUsers.value / itemsPerPage));
+  const paginatedUsers = computed(() => {
+    const start = (currentPage.value - 1) * itemsPerPage;
+    return filteredUsers.value.slice(start, start + itemsPerPage);
+  });
 
-// 計算總頁數
-const totalPages = computed(() => Math.ceil(totalUsers.value / itemsPerPage));
+  const startItem = computed(() => totalUsers.value === 0 ? 0 : (currentPage.value - 1) * itemsPerPage + 1);
+  const endItem = computed(() => Math.min(currentPage.value * itemsPerPage, totalUsers.value));
 
-// 搜尋過濾
-const filteredUsers = computed(() => {
-  return users.value.filter(user => 
-    user.full_name.includes(searchQuery.value) || 
-    user.email.includes(searchQuery.value)
-  );
-});
-
-// 表格實際要顯示的資料（分頁後的資料）
-const paginatedUsers = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage;
-  const end = start + itemsPerPage;
-  return filteredUsers.value.slice(start, end);
-});
-
-// 切換頁面
-const changePage = (page) => {
-  if (page >= 1 && page <= totalPages.value) {
-    currentPage.value = page;
-    // 切換頁面時自動回到頂端
-    window.scrollTo(0, 0);
-  }
-};
-
-// 跳轉詳情
-const viewDetail = (userId) => {
-  router.push(`/admin/user-detail/${userId}`);
-};
-
-// 刪除使用者
-const deleteUser = (userId) => {
-  if (confirm('確定要刪除此使用者嗎？')) {
-    users.value = users.value.filter(u => u.id !== userId);
-    localStorage.setItem('allUsers', JSON.stringify(users.value));
-  }
-};
-
+  const changePage = (page) => {
+    if (page >= 1 && page <= totalPages.value) {
+      currentPage.value = page;
+    }
+  };
 </script>
 
 <template>
@@ -95,20 +81,17 @@ const deleteUser = (userId) => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="user in filteredUsers" :key="user.id">
-            <td class="id-cell">{{ user.full_name }}</td>
-            <td class="name-cell">{{ user.email }}</td>
-            <td>{{ user.created_at }}</td>
-            <td>
-              <span :class="['status-badge', user.is_active ? 'active' : 'disabled']">
-                {{ user.is_active ? '● 啟用中' : '● 已停用' }}
-              </span>
-            </td>
-          </tr>
-          <tr v-if="filteredUsers.length === 0">
-            <td colspan="5" class="empty-state">目前尚無使用者資料</td>
-          </tr>
-        </tbody>
+  <tr v-for="user in paginatedUsers" :key="user.id">
+    <td class="id-cell">{{ user.full_name }}</td>
+    <td class="name-cell">{{ user.email }}</td>
+    <td>{{ user.created_at }}</td>
+    <td>
+      <span :class="['status-badge', user.account_status == 1 ? 'active' : 'disabled']">
+        {{ user.account_status == 1 ? '● 啟用中' : '● 已停用' }}
+      </span>
+    </td>
+  </tr>
+</tbody>
       </table>
     </div>
     <div class="pagination-footer">
@@ -223,7 +206,7 @@ $border-color: #e0e0e0;
 
   // 啟用中：顯示綠色
   &.active {
-    color: #2e7d32; // 深綠色文字
+    color: #2E6669; // 深綠色文字
   }
 
   // 已停用：顯示橘色
