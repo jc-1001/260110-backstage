@@ -91,8 +91,7 @@ const goToDetail = (user) => {
           <tr 
             v-for="user in paginatedUsers" 
             :key="user.member_id" 
-            @click="router.push({ name: 'UserDetail', params: { memberId: user.member_id } })"
-            class="clickable-row"
+            :class="{ 'disabled-row': user.account_status == 0 }"
           >
             <td class="id-cell">{{ user.full_name }}</td>
             <td class="name-cell">{{ user.email }}</td>
@@ -137,7 +136,7 @@ const goToDetail = (user) => {
 <style lang="scss" scoped>
 $primary-teal: #2E6669;
 $border-color: #e0e0e0;
-
+.disabled-row td { color: #8D8D8D !important; }
 .admin-user-list {
   padding: 40px;
   background-color: #fcfcfc;

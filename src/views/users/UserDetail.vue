@@ -74,6 +74,13 @@ const disableAccount = async () => {
     }
   }
 };
+
+const formattedRegDate = computed(() => {
+  if (!userData.value?.created_at) return '載入中...';
+  // 將 YYYY-MM-DD HH:mm:ss 轉為 YYYY-MM-DD
+  return userData.value.created_at.split(' ')[0]; 
+});
+
 </script>
 
 <template>

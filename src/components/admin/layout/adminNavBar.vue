@@ -15,12 +15,14 @@ const menuItems = ref([
   { name: '系統通知', icon: 'forum', path: '/notices' },
 ])
 
-// 管理員資訊
-const adminInfo = ref({
-  name: '管理員01',
-  icon: 'account_circle',
-})
+import { ref, onMounted } from 'vue';
+const adminId = ref('N/A');
+const adminName = ref('管理員');
 
+onMounted(() => {
+  adminId.value = localStorage.getItem('adminId') || 'N/A';
+  adminName.value = localStorage.getItem('adminName') || '管理員';
+});
 // 登出功能
 const handleLogout = () => {
   if (confirm('確定要登出管理系統嗎？')) {
@@ -45,7 +47,10 @@ const handleLogout = () => {
 
     <div class="admin_section" @click="handleLogout">
       <span class="material-icons-round admin_icon">{{ adminInfo.icon }}</span>
-      <span class="admin_name">{{ adminInfo.name }}</span>
+      <div class="admin-profile">
+        <span>管理員編號：{{ adminId }}</span>
+        <p>{{ adminName }}，您好</p>
+      </div>
       <span class="material-icons-round logout_icon">logout</span>
     </div>
 

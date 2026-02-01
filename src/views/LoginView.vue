@@ -10,29 +10,19 @@ const router = useRouter();
 const account = ref('');
 const password = ref('');
 
-// 1. 將單一帳號改為管理員清單 (陣列)
-const ADMIN_ACCOUNTS = [
-    'ziyi1114@gmail.com',
-    'macio6898@gmail.com',  
-    'bruce3721180@gmail.com',
-    'yuelinnnnn@gmail.com',
-    'niniabc920405@gmail.com',
-    'blue.bubble.o0.0c@gmail.com'
-];
 
-const ADMIN_PASSWORD = '123456'; 
 
-const handleLogin = () => {
-    // 2. 使用 includes 檢查帳號是否存在於陣列中
-    if (ADMIN_ACCOUNTS.includes(account.value) && password.value === ADMIN_PASSWORD) {
-        alert('登入成功');
-        localStorage.setItem('isAdminLogin', 'true');// 登入成功時存入標記
-        router.push({ name: 'Dashboard' }); 
-    } else {
-        alert('帳號或密碼錯誤，請重新輸入。');
-        password.value = '';
+const handleLogin = async () => {
+  try {
+    const res = await axios.post('http://localhost:8888/unicare_api/admin/admin_login_api.php', loginData.value);
+    if (res.data.success) {
+      // 存入管理員編號與姓名
+      localStorage.setItem('adminId', res.data.admin_id);
+      localStorage.setItem('adminName', res.data.full_name);
+      router.push('/admin/dashboard');
     }
-}
+  } catch (err) { alert('登入失敗'); }
+};
 
 </script>
 
