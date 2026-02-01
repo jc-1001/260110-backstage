@@ -1,66 +1,98 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router';
 import { ArrowLeft } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { publicApi } from '@/utils/publicApi'
 import adminHeader from '@/components/admin/adminHeader.vue'
 
 const route = useRoute()
 const router = useRouter()
-
 const orderId = route.params.id
 
-// 模擬訂單資料
+// 訂單資料結構
 const orderData = ref({
-  id: orderId,
-  status: '待處理',
-  createTime: '2025/12/10 08:45:30',
-  paymentMethod: '信用卡',
-  
+  id: '',
+  status: '',
+  createTime: '',  
   // 訂購人資訊
   user: {
-    name: '高金生',
-    email: 'roger7414@gmail.com',
-    phone: '0987-123-456',
-    address: '新北市北投區公館路7號',
-    note: '請幫我放在一樓管理室，乾蝦餒!'
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    note: ''
   },
 
-  // 配送資訊
-  shipping: {
-    method: '宅配',
-    status: '未出貨'
+  // 付款資訊
+  payment: {
+    method: '',
+    status: 0
   },
 
-  // 商品列表
-  products: [
-    {
-      id: 1,
-      name: '海洋鈣鎂D+強效錠',
-      image: '/images/shop/product_01.jpg',
-      price: 480,
-      qty: 2
-    },
-    {
-      id: 2,
-      name: '葡萄糖胺軟骨素複方',
-      image: '/images/shop/product_02.jpg',
-      price: 820,
-      qty: 1
-    }
-  ],
+  // 購買商品
+  products: [],
 
   // 金額計算
   summary: {
-    subtotal: 3750,
-    shippingFee: 60,
-    discount: 40,
-    total: 3770
+    subtotal: 0,
+    shippingFee: 0,
+    discount: 0,
+    total: 0
   }
 })
 
+// 抓取訂單資料api
+const fetchData = async () => {
+  try {
+    const res = await publicApi.get('http://localhost:8888/unicare_api/admin/get_order_detail.php', {params:{ id: orderId }})
+
+    if(!res.data) {
+      ElMessage.error('找不到該筆訂單')
+      router.push('/orders')
+      return
+    }
+
+    // 將後端資料填入
+    orderData.value = res.data
+  } catch (err) {
+    console.error(err)
+    ElMessage.error('資料載入失敗')
+  }
+}
+
+// 畫面載入時執行
+onMounted(()=>{
+  fetchData()
+})
+
+// 點擊狀態按鈕呼叫api (開始備貨/出貨/取消)
+const updateStatus = async (newStatus, note = '') => {
+  try {
+    const res = await publicApi.post('http://localhost:8888/unicare_api/admin/update_order_status.php', {
+      id: orderData.value.id,
+      status: newStatus,
+      note: note
+    })
+
+    if(res.data.success) {
+      // 後端更新成功後才更新前端畫面
+      orderData.value.status = newStatus
+      // 如果有備註，順便更新顯示
+      if(note) orderData.value.user.note += `(取消原因: ${note})`
+
+      ElMessage.success(`已更新訂單狀態為: ${newStatus}`)
+    }
+  } catch(err) {
+    console.error(err)
+    ElMessage.error('更新失敗，請稍後再嘗試')
+  }
+}
+
+
 // 圖片路徑處理 (防呆部署問題)
 const processImage = (path) => {
+  if(!path) return''
   // 取得 Base URL (Vite 設定)
   const baseUrl = import.meta.env.BASE_URL || '/'
   // 移除路徑開頭的斜線，避免重複 (例如 //images)
@@ -72,6 +104,18 @@ const goBack = () => {
   router.push('/orders')
 }
 
+// 按鈕 - 備貨
+const handlePrepare = () => {
+  ElMessageBox.confirm('確定要開始備貨嗎?', '出貨確認', {
+    confirmButtonText: '確定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  }).then(() => {
+    // 呼叫api
+    updateStatus('備貨中')
+  })
+}
+
 // 按鈕 - 出貨
 const handleShip = () => {
   ElMessageBox.confirm('確定要執行出貨嗎?', '出貨確認', {
@@ -79,9 +123,7 @@ const handleShip = () => {
     cancelButtonText: '取消',
     type: 'warning',
   }).then(() => {
-    orderData.value.status = '已出貨'
-    orderData.value.shipping.status = '配送中'
-    ElMessage.success('訂單已更新為出貨狀態！')
+    updateStatus('已出貨')
   })
 }
 
@@ -91,8 +133,7 @@ const handleCancel = () => {
     confirmButtonText: '確認取消',
     cancelButtonText: '關閉',
   }).then(({ value }) => {
-    orderData.value.status = '已取消'
-    ElMessage.info(`訂單已取消，原因：${value}`)
+    updateStatus('已取消', value)
   })
 }
 </script>
@@ -104,8 +145,9 @@ const handleCancel = () => {
     <div class="top_bar">
       <el-button :icon="ArrowLeft" @click="goBack" class="back_btn">返回</el-button>
       <div class="actions">
-        <el-button @click="handleCancel">取消訂單</el-button>
-        <el-button type="primary" @click="handleShip" class="ship_btn">出貨</el-button>
+        <el-button type="primary" @click="handlePrepare" class="prepare_btn" :disabled="orderData.status === '已取消'" :class="{'disabled': orderData.status === '已取消'}">開始備貨</el-button>
+        <el-button type="primary" @click="handleShip" class="ship_btn" :disabled="orderData.status === '已取消' " :class="{'disabled': orderData.status === '已取消'}">出貨</el-button>
+        <el-button @click="handleCancel" class="cancel_btn" type="primary" :disabled="orderData.status === '已取消' " :class="{'disabled': orderData.status === '已取消'}">取消訂單</el-button>
       </div>
     </div>
 
@@ -120,10 +162,6 @@ const handleCancel = () => {
         <div class="info_item">
           <span class="label">訂購時間</span>
           <span class="value">{{ orderData.createTime }}</span>
-        </div>
-        <div class="info_item">
-          <span class="label">付款方式</span>
-          <span class="value">{{ orderData.paymentMethod }}</span>
         </div>
       </div>
     </el-card>
@@ -146,11 +184,11 @@ const handleCancel = () => {
           
           <el-card class="info_card">
             <template #header>
-              <div class="card_header">配送資訊</div>
+              <div class="card_header">付款資訊</div>
             </template>
             <el-descriptions :column="1" border>
-              <el-descriptions-item label="配送方式">{{ orderData.shipping.method }}</el-descriptions-item>
-              <el-descriptions-item label="配送狀態">{{ orderData.shipping.status }}</el-descriptions-item>
+              <el-descriptions-item label="付款方式">{{ orderData.payment.method == 'credit' ? '信用卡' : 'ATM' }}</el-descriptions-item>
+              <el-descriptions-item label="付款狀態">{{ orderData.payment.status == 0 ? '未付款':'已付款' }}</el-descriptions-item>
             </el-descriptions>
           </el-card>
         </div>
@@ -222,11 +260,40 @@ const handleCancel = () => {
   margin-bottom: 20px;
 
   .ship_btn {
+    padding: 0 32px;
     background-color: $primaryDark; 
     border-color: $primaryDark;
-    &:hover {
-      background-color: $primary;
-      border-color: $primary;
+    &:not(.disabled):hover {
+      background-color: $white;
+      color: $primaryDark;
+      border-color: $primaryDark;
+    }
+    &.disabled {
+      display: none;
+      background-color: $disabled;
+      border-color: $disabled;
+    }
+  }
+  .prepare_btn {
+    padding: 0 32px;
+    background-color: $primary;
+    border-color: $primary;
+    &:not(.disabled):hover {
+      background-color: $white;
+      color: $primaryDark;
+      border-color: $primaryDark;
+    }
+    &.disabled {
+      display: none;
+      background-color: $disabled;
+      border-color: $disabled;
+    }
+  }
+  .cancel_btn {
+    &.disabled {
+      display: none;
+      background-color: $disabled;
+      border-color: $disabled;
     }
   }
 }

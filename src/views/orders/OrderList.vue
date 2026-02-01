@@ -11,23 +11,17 @@ const slcDate = ref('') //對應日期 v-model="slcDate"
 // 只要定義數據，表格就會自動長出來
 // 假資料(引入data/adminNotice.json)
 
-const fetchData = () => {
-  publicApi
-    // .get('https://fakestoreapi.com/products')
-    .get('data/adminOrderList.json')
-    .then((response) => {
-      // handle success -> 把請求後得到的資料丟給ordersList
-      ordersList.value = response.data
-    })
+const fetchData = async () => {
+  try {
+    const res = await publicApi.get('http://localhost:8888/unicare_api/admin/get_orders.php')
 
-    .catch((error) => {
-      // handle error
-      console.log(error)
-    })
-    .finally(() => {
-      // always executed
-    })
+    ordersList.value = res.data
+  } catch (err) {
+    console.log('訂單載入失敗', err);
+  }
 }
+
+// 畫面載入時執行
 onMounted(() => {
   fetchData()
 })
@@ -86,8 +80,9 @@ const tableRowClassName = ({ row }) => {
 // 標籤顏色判斷
 const getTagClass = (status) => {
   const statusMap = {
-    待處理: 'tag-pending',
-    已出貨: 'tag-success',
+    訂單成立: 'tag-create',
+    備貨中: 'tag-pending',
+    配送中: 'tag-success',
     已取消: 'tag-error',
   }
   return statusMap[status] || ''
@@ -96,12 +91,16 @@ const getTagClass = (status) => {
 const options = [
   { value: '', label: '全部' },
   {
-    value: '待處理',
-    label: '待處理',
+    value: '訂單成立',
+    label: '訂單成立',
   },
   {
-    value: '已出貨',
-    label: '已出貨',
+    value: '備貨中',
+    label: '備貨中',
+  },
+  {
+    value: '配送中',
+    label: '配送中',
   },
   {
     value: '已取消',
@@ -159,13 +158,13 @@ const options = [
       :row-class-name="tableRowClassName"
       header-cell-class-name="custom-header"
     >
-      <el-table-column label="訂單編號" prop="order_id" sortable min-width="150">
+      <el-table-column label="訂單編號" prop="order_id" min-width="150">
         <template #default="scope">
           <span class="title-link">{{ scope.row.order_id }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="訂單狀態" prop="status" sortable width="120">
+      <el-table-column label="訂單狀態" prop="status" width="120">
         <template #default="scope">
           <el-tag :class="getTagClass(scope.row.status)" effect="dark">
             {{ scope.row.status }}
@@ -173,7 +172,7 @@ const options = [
         </template>
       </el-table-column>
 
-      <el-table-column label="訂購人" prop="customer" sortable width="150" />
+      <el-table-column label="訂購人" prop="customer" width="150" />
 
       <el-table-column label="訂購時間" prop="order_time" sortable width="200" />
 
@@ -185,7 +184,7 @@ const options = [
 
       <el-table-column label="編輯" width="80" align="center">
         <template #default="scope">
-          <router-link :to="'/orders/edit/' + scope.row.order_id" custom v-slot="{ navigate }">
+          <router-link :to="'/orders/edit/' + scope.row.db_id" custom v-slot="{ navigate }">
             <el-button size="small" @click="navigate">
               <span class="material-symbols-outlined">edit_square</span>
             </el-button>
