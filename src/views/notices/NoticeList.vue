@@ -7,25 +7,14 @@ import { publicApi } from '@/utils/publicApi'
 
 const noticesList = ref([])
 const search = ref('')
-// 只要定義數據，表格就會自動長出來
-// 假資料(引入data/adminNotice.json)
-
-const fetchData = () => {
-  publicApi
-    // .get('https://fakestoreapi.com/products')
-    .get('data/adminNotice.json')
-    .then((response) => {
-      // handle success -> 把請求後得到的資料丟給noticesList
-      noticesList.value = response.data
-    })
-
-    .catch((error) => {
-      // handle error
-      console.log(error)
-    })
-    .finally(() => {
-      // always executed
-    })
+// 串接APi(get) 取得資料
+const fetchData = async () => {
+  try {
+    const res = await publicApi.get('announcements/get_ann_admin.php')
+    noticesList.value = res.data
+  } catch (error) {
+    console.log('後台抓取失敗', error)
+  }
 }
 onMounted(() => {
   fetchData()
@@ -37,11 +26,10 @@ const currentPage = ref(1) // 當前頁碼
 const pageSize = ref(10) // 每頁顯示幾筆
 
 // 搜尋框輸入資料過濾邏輯
-//修正過濾與分頁邏輯 (加上 .slice 做分頁切片)
 const filterTableData = computed(() => {
   // 先過濾搜尋內容
   const filtered = noticesList.value.filter(
-    (item) => !search.value || item.titleName.toLowerCase().includes(search.value.toLowerCase()),
+    (item) => !search.value || item.title.toLowerCase().includes(search.value.toLowerCase()),
   )
   return filtered
 })
@@ -74,18 +62,22 @@ watch([search], () => {
 // 每一行的樣式判斷
 const tableRowClassName = ({ row }) => {
   if (!row) return '' // 如果 row 還沒加載，直接回傳空字串
-  if (row.log === 'upload') return 'status-upload'
-  if (row.log === 'down') return 'status-down'
-  if (row.log === 'schedule') return 'status-schedule'
-  if (row.log === 'draft') return 'status-draft'
-  return ''
+  // 讓 down 和 draft 都套用 .status-down 的灰色樣式
+  if (row.status === 'down' || row.status === 'draft') return 'status-down'
+  if (row.status === 'schedule') return 'status-schedule'
+  return `status-${row.status}`
 }
 
 // 標籤顏色判斷
-const getTagClass = (type) => {
-  if (type === '系統公告') return 'tag-teal'
-  if (type === '商城活動') return 'tag-event'
+const getTagClass = (announcement_type) => {
+  if (announcement_type === '系統公告') return 'tag-teal'
+  if (announcement_type === '商城活動') return 'tag-event'
   return ''
+}
+// 編輯按鈕
+// 記得在 template 傳入 scope.row.announcement_id
+const goEditNotice = (announcement_id) => {
+  router.push(`/notices/edit/${announcement_id}`)
 }
 </script>
 <template>
@@ -123,38 +115,46 @@ const getTagClass = (type) => {
       :row-class-name="tableRowClassName"
       header-cell-class-name="custom-header"
     >
-      <el-table-column label="訊息標題" prop="titleName" min-width="200">
+      <el-table-column label="訊息標題" prop="title" min-width="200">
         <template #default="scope">
-          <span class="title-link">{{ scope.row.titleName }}</span>
+          <span class="title-link">{{ scope.row.title }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="訊息類型" prop="type" sortable width="150">
+      <el-table-column label="訊息類型" prop="announcement_type" sortable width="150">
         <template #default="scope">
-          <el-tag :class="getTagClass(scope.row?.type)" effect="dark">
-            {{ scope.row?.type }}
+          <el-tag :class="getTagClass(scope.row?.announcement_type)" effect="dark">
+            {{ scope.row?.announcement_type }}
           </el-tag>
         </template>
       </el-table-column>
 
-      <el-table-column label="發布者" prop="people" sortable width="120" />
-
-      <el-table-column label="發布時間" prop="date" sortable width="180" />
-
-      <el-table-column label="訊息狀態" prop="log" sortable width="120">
+      <el-table-column label="發布者" prop="admin_name" sortable width="150">
         <template #default="scope">
-          <span :class="['status-text', 'text-' + scope.row?.log]">
-            <template v-if="scope.row?.log === 'upload'">已發布</template>
-            <template v-else-if="scope.row?.log === 'down'">已下架</template>
-            <template v-else-if="scope.row?.log === 'schedule'">排程中</template>
-            <template v-else-if="scope.row?.log === 'draft'">草稿</template>
+          <span>{{ scope.row.admin_name || '管理員 ' + scope.row.created_by_admin_id }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="發布時間" prop="start_at" sortable width="180" />
+
+      <el-table-column label="訊息狀態" prop="status" sortable width="120">
+        <template #default="scope">
+          <span :class="['status-text', 'text-' + scope.row?.status]">
+            <template v-if="scope.row?.status === 'upload'">已發布</template>
+            <template v-else-if="scope.row?.status === 'down'">已下架</template>
+            <template v-else-if="scope.row?.status === 'schedule'">排程中</template>
+            <template v-else-if="scope.row?.status === 'draft'">草稿</template>
             <template v-else>未知</template>
           </span>
         </template>
       </el-table-column>
       <el-table-column label="編輯" width="80" align="center">
         <template #default="scope">
-          <router-link :to="'/notices/edit/' + scope.row.id" custom v-slot="{ navigate }">
+          <router-link
+            :to="'/notices/edit/' + scope.row.announcement_id"
+            custom
+            v-slot="{ navigate }"
+          >
             <el-button size="small" @click="navigate">
               <span class="material-symbols-outlined">edit_square</span>
             </el-button>

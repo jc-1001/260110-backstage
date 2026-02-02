@@ -1,122 +1,152 @@
 [
   {
-    "id": 1,
-    "titleName": "12/25 系統維護",
-    "type": "系統公告",
-    "people": "管理員01",
-    "date": "2025/12/24 14:00:00",
-    "log": "draft"
+    "announcement_id": 1,
+    "title": "12/25 系統維護",
+    "announcement_type": "系統公告",
+    "created_by_admin_id": 1,
+    "start_at": "2025-12-24 14:00:00",
+    "end_at": "2025-12-25 06:00:00",
+    "status": "down",
+    "content": "系統維護通知：為了提供更穩定的服務，我們將於 12/25 02:00 - 06:00 進行例行性維護。屆時商城將暫停下單功能，敬請見諒。"
   },
   {
-    "id": 2,
-    "titleName": "樂活商城聖誕節促銷活動",
-    "type": "商城活動",
-    "people": "管理員01",
-    "date": "2025/12/20 09:00:00",
-    "log": "schedule"
+    "announcement_id": 2,
+    "title": "樂活商城聖誕節促銷活動",
+    "announcement_type": "商城活動",
+    "created_by_admin_id": 1,
+    "start_at": "2025-12-20 09:00:00",
+    "end_at": "2025-12-26 23:59:59",
+    "status": "schedule",
+    "content": "聖誕歡樂送！凡於活動期間購買指定商品，即可獲得聖誕限定包裝服務。全店滿 $1225 再送聖誕限定隨行杯一個！"
   },
   {
-    "id": 3,
-    "titleName": "葉黃素買一送一",
-    "type": "商城活動",
-    "people": "管理員01",
-    "date": "2025/12/18 10:30:00",
-    "log": "schedule"
+    "announcement_id": 3,
+    "title": "葉黃素買一送一",
+    "announcement_type": "商城活動",
+    "created_by_admin_id": 1,
+    "start_at": "2025-12-18 10:30:00",
+    "end_at": "2025-12-21 10:30:00",
+    "status": "upload",
+    "content": "限時瘋搶：晶亮生活趁現在。深受好評的黃金葉黃素，限時三天買一送一！保護您的雙眼不等待，每人限購兩組。"
   },
   {
-    "id": 4,
-    "titleName": "樂活商城滿1000折200",
-    "type": "商城活動",
-    "people": "管理員01",
-    "date": "2025/12/15 08:00:00",
-    "log": "upload"
+    "announcement_id": 4,
+    "title": "樂活商城滿1000折200",
+    "announcement_type": "商城活動",
+    "created_by_admin_id": 1,
+    "start_at": "2025-12-15 08:00:00",
+    "end_at": "2025-12-31 23:59:59",
+    "status": "schedule",
+    "content": "【年底大回饋】結帳輸入優惠碼 LOHAS200，消費滿千現折兩百元！全站商品皆適用（除特惠組外）。"
   },
   {
-    "id": 5,
-    "titleName": "連續登入七天 送50積分",
-    "type": "商城活動",
-    "people": "管理員02",
-    "date": "2025/12/12 13:15:20",
-    "log": "upload"
+    "announcement_id": 5,
+    "title": "連續登入七天 送50積分",
+    "announcement_type": "商城活動",
+    "created_by_admin_id": 2,
+    "start_at": "2025-12-12 13:15:20",
+    "end_at": "2026-01-12 13:15:20",
+    "status": "upload",
+    "content": "天天來報到，積分拿不停！只要連續登入商城 7 天，系統將自動派發 50 積分至您的會員帳戶。"
   },
   {
-    "id": 6,
-    "titleName": "11/15 系統維護",
-    "type": "系統公告",
-    "people": "管理員02",
-    "date": "2025/11/14 23:50:00",
-    "log": "upload"
+    "announcement_id": 6,
+    "title": "11/15 系統維護",
+    "announcement_type": "系統公告",
+    "created_by_admin_id": 2,
+    "start_at": "2025-11-14 23:50:00",
+    "end_at": "2025-11-15 04:00:00",
+    "status": "upload",
+    "content": "11/15 伺服器優化作業已完成。感謝使用者的配合，系統已恢復正常運作。"
   },
   {
-    "id": 7,
-    "titleName": "維他命全品項85折",
-    "type": "商城活動",
-    "people": "管理員02",
-    "date": "2025/11/10 11:20:45",
-    "log": "upload"
+    "announcement_id": 7,
+    "title": "維他命全品項85折",
+    "announcement_type": "商城活動",
+    "created_by_admin_id": 2,
+    "start_at": "2025-11-10 11:20:45",
+    "end_at": "2025-11-20 11:20:45",
+    "status": "upload",
+    "content": "健康加分，價格減分。全系列維他命（A, B群, C, D, E）不限品牌全面 85 折！守護全家人的健康就是這麼簡單。"
   },
   {
-    "id": 8,
-    "titleName": "12月新品推薦",
-    "type": "商城活動",
-    "people": "管理員02",
-    "date": "2025/11/01 16:40:00",
-    "log": "down"
+    "announcement_id": 8,
+    "title": "12月新品推薦",
+    "announcement_type": "商城活動",
+    "created_by_admin_id": 2,
+    "start_at": "2025-11-01 16:40:00",
+    "end_at": "2025-12-01 16:40:00",
+    "status": "down",
+    "content": "12 月份我們為您準備了最新的草本保養系列，詳情請參閱新品專區，體驗來自大自然的純粹呵護。"
   },
   {
-    "id": 9,
-    "titleName": "全新功能介紹",
-    "type": "系統公告",
-    "people": "管理員02",
-    "date": "2025/10/25 10:00:00",
-    "log": "down"
+    "announcement_id": 9,
+    "title": "全新功能介紹",
+    "announcement_type": "系統公告",
+    "created_by_admin_id": 2,
+    "start_at": "2025-10-25 10:00:00",
+    "end_at": null,
+    "status": "draft",
+    "content": "個人化推薦功能上線：現在您可以根據過去的購買喜好，看到更適合您的專屬推薦商品。快去首頁體驗吧！"
   },
   {
-    "id": 10,
-    "titleName": "1111促銷活動",
-    "type": "商城活動",
-    "people": "管理員02",
-    "date": "2025/10/20 09:15:30",
-    "log": "down"
+    "announcement_id": 10,
+    "title": "1111促銷活動",
+    "announcement_type": "商城活動",
+    "created_by_admin_id": 2,
+    "start_at": "2025-10-20 09:15:30",
+    "end_at": "2025-11-12 23:59:59",
+    "status": "down",
+    "content": "雙 11 狂歡購物節：年度最強下殺，整點搶券、積分加倍。最高回饋達 22%，錯過再等一年！"
   },
   {
-    "id": 11,
-    "titleName": "2026 元旦跨年慶活動",
-    "type": "商城活動",
-    "people": "管理員01",
-    "date": "2025/12/28 10:00:00",
-    "log": "schedule"
+    "announcement_id": 11,
+    "title": "2026 元旦跨年慶活動",
+    "announcement_type": "商城活動",
+    "created_by_admin_id": 1,
+    "start_at": "2025-12-28 10:00:00",
+    "end_at": "2026-01-03 23:59:59",
+    "status": "schedule",
+    "content": "揮別 2025，迎接 2026！元旦當天全館消費滿 $2026 即可參加抽獎，有機會獲得萬元購物金。"
   },
   {
-    "id": 12,
-    "titleName": "春節期間物流配送調整通知",
-    "type": "系統公告",
-    "people": "管理員02",
-    "date": "2025/12/27 15:30:00",
-    "log": "draft"
+    "announcement_id": 12,
+    "title": "春節期間物流配送調整通知",
+    "announcement_type": "系統公告",
+    "created_by_admin_id": 2,
+    "start_at": "2025-12-27 15:30:00",
+    "end_at": "2026-02-10 15:30:00",
+    "status": "schedule",
+    "content": "【重要】農曆新年物流配送：春節期間 (1/28 - 2/5) 暫停宅配到府服務，超商取貨則維持正常配送，但到貨時間可能延長 2-3 天。"
   },
   {
-    "id": 13,
-    "titleName": "冬季保養品特賣會 - 全面7折起",
-    "type": "商城活動",
-    "people": "管理員01",
-    "date": "2025/12/10 09:00:00",
-    "log": "upload"
+    "announcement_id": 13,
+    "title": "冬季保養品特賣會 - 全面7折起",
+    "announcement_type": "商城活動",
+    "created_by_admin_id": 1,
+    "start_at": "2025-12-10 09:00:00",
+    "end_at": "2026-01-10 09:00:00",
+    "status": "upload",
+    "content": "對抗乾燥氣候，保濕乳液與面霜精選 7 折起。讓您的肌膚在寒冷冬季依然水嫩透亮。"
   },
   {
-    "id": 14,
-    "titleName": "金流系統介面升級公告",
-    "type": "系統公告",
-    "people": "管理員02",
-    "date": "2025/11/20 11:00:00",
-    "log": "down"
+    "announcement_id": 14,
+    "title": "金流系統介面升級公告",
+    "announcement_type": "系統公告",
+    "created_by_admin_id": 2,
+    "start_at": "2025-11-20 11:00:00",
+    "end_at": null,
+    "status": "draft",
+    "content": "為了提升支付安全性與便利性，金流結帳介面已完成全新升級，支援更多元且快速的支付方式。"
   },
   {
-    "id": 15,
-    "titleName": "雙12嘉年華 滿額贈好禮",
-    "type": "商城活動",
-    "people": "管理員01",
-    "date": "2025/12/05 08:30:00",
-    "log": "upload"
+    "announcement_id": 15,
+    "title": "雙12嘉年華 滿額贈好禮",
+    "announcement_type": "商城活動",
+    "created_by_admin_id": 1,
+    "start_at": "2025-12-05 08:30:00",
+    "end_at": "2025-12-13 23:59:59",
+    "status": "upload",
+    "content": "雙 12 年終大賞：全場單筆滿 $1,212 即贈送品牌質感托特包（限量 500 名），送完為止。"
   }
 ]

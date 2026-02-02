@@ -3,6 +3,9 @@ import AdminHeader from '@/components/admin/adminHeader.vue'
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import axios from 'axios'
 import { Chart, registerables } from 'chart.js'
+import milkImg from '@/assets/images/dashboard/milk.png'
+import eyeImg from '@/assets/images/dashBoard/eye.png'
+import soyImg from '@/assets/images/dashBoard/soy.png'
 
 // 注册 Chart.js 所有组件
 Chart.register(...registerables)
@@ -297,11 +300,11 @@ const quanData = computed(() => [
 const top5Data = [
   {
     id: '1',
-    name: '鈣好多牛奶 1800ml',
+    name: '維他命C 1000mg',
     price: '180',
     star: '5',
     sales: '250',
-    image: '/images/dashBoard/milk.png'
+    image: milkImg
   },
   {
     id: '2',
@@ -309,7 +312,7 @@ const top5Data = [
     price: '2450',
     star: '5',
     sales: '200',
-    image: '/images/dashBoard/eye.png'
+    image: eyeImg
   },
   {
     id: '3',
@@ -317,7 +320,7 @@ const top5Data = [
     price: '1600',
     star: '5',
     sales: '150',
-    image: '/images/dashBoard/soy.png'
+    image: soyImg
   },
 ]
 </script>
@@ -523,6 +526,9 @@ const top5Data = [
   width: 150px;
   height: 150px;
   background-color: gray;
+  img {
+    object-fit: cover;
+  }
 }
 
 .top5-card__img img {
