@@ -13,7 +13,7 @@ const slcDate = ref('') //對應日期 v-model="slcDate"
 
 const fetchData = async () => {
   try {
-    const res = await publicApi.get('http://localhost:8888/unicare_api/admin/get_orders.php')
+    const res = await publicApi.get('admin/get_orders.php')
 
     ordersList.value = res.data
   } catch (err) {
@@ -82,7 +82,7 @@ const getTagClass = (status) => {
   const statusMap = {
     訂單成立: 'tag-create',
     備貨中: 'tag-pending',
-    配送中: 'tag-success',
+    已出貨: 'tag-success',
     已取消: 'tag-error',
   }
   return statusMap[status] || ''
@@ -268,6 +268,11 @@ const options = [
   color: $white !important;
 }
 
+.tag-create {
+  background-color: rgb(72, 142, 222);
+  color: $white;
+  border: none;
+}
 .tag-pending {
   background-color: $accent;
   color: $white;

@@ -10,6 +10,17 @@ const route = useRoute()
 const router = useRouter()
 const orderId = route.params.id
 
+// status標籤顏色
+const getTagClass = (status) => {
+  const statusMap = {
+    '訂單成立': 'tag-create',
+    '備貨中': 'tag-pending',
+    '已出貨': 'tag-success',
+    '已取消': 'tag-error',
+  }
+  return statusMap[status] || ''
+}
+
 // 訂單資料結構
 const orderData = ref({
   id: '',
@@ -45,7 +56,7 @@ const orderData = ref({
 // 抓取訂單資料api
 const fetchData = async () => {
   try {
-    const res = await publicApi.get('http://localhost:8888/unicare_api/admin/get_order_detail.php', {params:{ id: orderId }})
+    const res = await publicApi.get('admin/get_order_detail.php', {params:{ id: orderId }})
 
     if(!res.data) {
       ElMessage.error('找不到該筆訂單')
@@ -69,7 +80,7 @@ onMounted(()=>{
 // 點擊狀態按鈕呼叫api (開始備貨/出貨/取消)
 const updateStatus = async (newStatus, note = '') => {
   try {
-    const res = await publicApi.post('http://localhost:8888/unicare_api/admin/update_order_status.php', {
+    const res = await publicApi.post('admin/update_order_status.php', {
       id: orderData.value.id,
       status: newStatus,
       note: note
@@ -145,9 +156,9 @@ const handleCancel = () => {
     <div class="top_bar">
       <el-button :icon="ArrowLeft" @click="goBack" class="back_btn">返回</el-button>
       <div class="actions">
-        <el-button type="primary" @click="handlePrepare" class="prepare_btn" :disabled="orderData.status === '已取消'" :class="{'disabled': orderData.status === '已取消'}">開始備貨</el-button>
-        <el-button type="primary" @click="handleShip" class="ship_btn" :disabled="orderData.status === '已取消' " :class="{'disabled': orderData.status === '已取消'}">出貨</el-button>
-        <el-button @click="handleCancel" class="cancel_btn" type="primary" :disabled="orderData.status === '已取消' " :class="{'disabled': orderData.status === '已取消'}">取消訂單</el-button>
+        <el-button type="primary" @click="handlePrepare" class="prepare_btn" :class="{'disabled': orderData.status === '已取消'}">開始備貨</el-button>
+        <el-button type="primary" @click="handleShip" class="ship_btn" :class="{'disabled': orderData.status === '已取消'}">出貨</el-button>
+        <el-button @click="handleCancel" class="cancel_btn" type="danger" :class="{'disabled': orderData.status === '已取消'}">取消訂單</el-button>
       </div>
     </div>
 
@@ -155,7 +166,7 @@ const handleCancel = () => {
       <div class="status_row">
         <div class="info_item">
           <span class="label">訂單狀態</span>
-          <el-tag :type="orderData.status === '已出貨' ? 'success' : orderData.status === '已取消' ? 'info' : 'warning'" effect="dark">
+          <el-tag :class="getTagClass(orderData.status)" effect="dark">
             {{ orderData.status }}
           </el-tag>
         </div>
@@ -270,8 +281,6 @@ const handleCancel = () => {
     }
     &.disabled {
       display: none;
-      background-color: $disabled;
-      border-color: $disabled;
     }
   }
   .prepare_btn {
@@ -285,15 +294,11 @@ const handleCancel = () => {
     }
     &.disabled {
       display: none;
-      background-color: $disabled;
-      border-color: $disabled;
     }
   }
   .cancel_btn {
     &.disabled {
       display: none;
-      background-color: $disabled;
-      border-color: $disabled;
     }
   }
 }
@@ -407,5 +412,27 @@ const handleCancel = () => {
       background-color: #eee;
     }
   }
+}
+
+// status標籤設定
+.tag-create {
+  background-color: rgb(72, 142, 222);
+  color: $white;
+  border: none;
+}
+.tag-pending {
+  background-color: $accent;
+  color: $white;
+  border: none;
+}
+.tag-success {
+  background-color: $primary;
+  color: $white;
+  border: none;
+}
+.tag-error {
+  background-color: $grayDark;
+  color: $white;
+  border: none;
 }
 </style>
