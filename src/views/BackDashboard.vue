@@ -10,7 +10,7 @@ import soyImg from '@/assets/images/dashBoard/soy.png'
 // 注册 Chart.js 所有组件
 Chart.register(...registerables)
 
-const API_BASE_URL = 'http://localhost:8888/unicare_api/dashboard'
+const API_BASE_URL = import.meta.env.VITE_API_DOMAIN + 'dashboard'
 
 const memberStats = ref({
   total: 0,
