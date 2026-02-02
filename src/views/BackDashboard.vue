@@ -1,35 +1,298 @@
 <script setup>
 import AdminHeader from '@/components/admin/adminHeader.vue'
-import { ref } from 'vue'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
+import axios from 'axios'
+import { Chart, registerables } from 'chart.js'
 
-const quanData = ref([
-  {
-    id: "members-number",
-    title: "使用者總數",
-    value: "8763",
-  },
-  {
-    id: "members-increase",
-    title: "本月增加使用者",
-    value: "250",
-    trend: "up",
-  },
-  {
-    id: "orders-today",
-    title: "今日訂單數量",
-    value: "89",
-    trend: "down",
-  },
-  {
-    id: "orders-pending",
-    title: "待處理訂單數量",
-    value: "24",
-  },
-])
+// 注册 Chart.js 所有组件
+Chart.register(...registerables)
+
+const API_BASE_URL = 'http://localhost:8888/unicare_api/dashboard'
+
+const memberStats = ref({
+  total: 0,
+  newThisMonth: 0,
+})
+
+const orderStats = ref({
+  today: 0,
+  pending: 0,
+  thisMonth: 0,
+  total: 0,
+  statusDistribution: {},
+  monthlyRevenue: 0
+})
+
+// 🔥 新增：图表相关
+const userChartCanvas = ref(null)
+const orderChartCanvas = ref(null)
+let userChartInstance = null
+let orderChartInstance = null
+
+// 取得會員統計
+const getMemberStats = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/get_member_stats.php`)
+
+    if (response.data.success) {
+      const data = response.data.data
+
+      memberStats.value = {
+        total: data.total_members,
+        newThisMonth: data.new_members_this_month,
+      }
+      console.log('✅ 會員統計:', memberStats.value)
+    }
+  } catch (error) {
+    console.error('❌ 取得會員統計失敗:', error)
+  }
+}
+
+// 取得訂單統計
+const getOrderStats = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/get_order_stats.php`)
+
+    if (response.data.success) {
+      const data = response.data.data
+
+      orderStats.value = {
+        today: data.orders_today,
+        pending: data.orders_pending,
+      }
+      console.log('✅ 訂單統計:', orderStats.value)
+    }
+  } catch (error) {
+    console.error('❌ 取得訂單統計失敗:', error)
+  }
+}
+
+// 🔥 修改：取得使用者趨勢數據
+const getMemberTrends = async (period) => {
+  try {
+    const periodMap = {
+      '月': 'month',    // 30天
+      '季': 'quarter',  // 90天
+      '年': 'year'      // 365天
+    }
+    
+    const response = await axios.get(`${API_BASE_URL}/get_member_trends.php`, {
+      params: { period: periodMap[period] }
+    })
+
+    if (response.data.success) {
+      console.log(`✅ ${period} 使用者趨勢:`, response.data.data)
+      return response.data.data
+    }
+  } catch (error) {
+    console.error('❌ 取得使用者趨勢失敗:', error)
+    return { labels: [], values: [] }
+  }
+}
+
+// 🔥 新增：取得訂單趨勢數據
+// 🔥 修改：取得訂單趨勢數據
+const getOrderTrends = async (period) => {
+  try {
+    const periodMap = {
+      '月': 'month',    // 30天
+      '季': 'quarter',  // 90天
+      '年': 'year'      // 365天
+    }
+    
+    const response = await axios.get(`${API_BASE_URL}/get_order_trends.php`, {
+      params: { period: periodMap[period] }
+    })
+
+    if (response.data.success) {
+      console.log(`✅ ${period} 訂單趨勢:`, response.data.data)
+      return response.data.data
+    }
+  } catch (error) {
+    console.error('❌ 取得訂單趨勢失敗:', error)
+    return { labels: [], values: [] }
+  }
+}
+
+// 🔥 新增：初始化使用者成長圖表
+const initUserChart = async () => {
+  if (!userChartCanvas.value) return
+
+  const trendData = await getMemberTrends(activeBtnUsers.value)
+
+  // 銷毀舊圖表
+  if (userChartInstance) {
+    userChartInstance.destroy()
+  }
+
+  const ctx = userChartCanvas.value.getContext('2d')
+
+  userChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: trendData.labels,
+      datasets: [{
+        label: '新增使用者數',
+        data: trendData.values,
+        borderColor: '#2E6669',
+        backgroundColor: 'rgba(46, 102, 105, 0.1)',
+        tension: 0.4,
+        fill: true,
+        pointBackgroundColor: '#2E6669',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return value.toFixed(0)
+            }
+          }
+        },
+        x: {
+          ticks: {
+            maxRotation: 45,
+            minRotation: 45
+          }
+        }
+      }
+    }
+  })
+}
+
+// 🔥 新增：初始化訂單成長圖表
+const initOrderChart = async () => {
+  if (!orderChartCanvas.value) return
+
+  const trendData = await getOrderTrends(activeBtnOrders.value)
+
+  // 銷毀舊圖表
+  if (orderChartInstance) {
+    orderChartInstance.destroy()
+  }
+
+  const ctx = orderChartCanvas.value.getContext('2d')
+
+  orderChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: trendData.labels,
+      datasets: [{
+        label: '訂單數量',
+        data: trendData.values,
+        borderColor: '#E74C3C',
+        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+        tension: 0.4,
+        fill: true,
+        pointBackgroundColor: '#E74C3C',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return value.toFixed(0)
+            }
+          }
+        },
+        x: {
+          ticks: {
+            maxRotation: 45,
+            minRotation: 45
+          }
+        }
+      }
+    }
+  })
+}
 
 const periodBtn = ['月', '季', '年']
 const activeBtnUsers = ref('月')
 const activeBtnOrders = ref('月')
+
+// 在 mounted 時呼叫
+onMounted(async () => {
+  await getMemberStats()
+  await getOrderStats()
+  
+  // 🔥 等待 DOM 渲染完成後初始化圖表
+  await nextTick()
+  await initUserChart()
+  await initOrderChart()
+})
+
+// 🔥 監聽使用者按鈕變化
+watch(activeBtnUsers, async () => {
+  await nextTick()
+  await initUserChart()
+})
+
+// 🔥 監聽訂單按鈕變化
+watch(activeBtnOrders, async () => {
+  await nextTick()
+  await initOrderChart()
+})
+
+const quanData = computed(() => [
+  {
+    id: "members-number",
+    title: "使用者總數",
+    value: memberStats.value.total,
+  },
+  {
+    id: "members-increase",
+    title: "本月增加使用者",
+    value: memberStats.value.newThisMonth,
+    trend: memberStats.value.newThisMonth > 0 ? "up" : "down",
+  },
+  {
+    id: "orders-today",
+    title: "今日訂單數量",
+    value: orderStats.value.today,
+    trend: orderStats.value.today > 0 ? "up" : "down",
+  },
+  {
+    id: "orders-pending",
+    title: "待處理訂單數量",
+    value: orderStats.value.pending,
+  },
+])
 
 const top5Data = [
   {
@@ -38,7 +301,7 @@ const top5Data = [
     price: '180',
     star: '5',
     sales: '250',
-    image: '/public/images/dashBoard/milk.png'
+    image: '/images/dashBoard/milk.png'
   },
   {
     id: '2',
@@ -46,7 +309,7 @@ const top5Data = [
     price: '2450',
     star: '5',
     sales: '200',
-    image: '/public/images/dashBoard/eye.png'
+    image: '/images/dashBoard/eye.png'
   },
   {
     id: '3',
@@ -54,10 +317,9 @@ const top5Data = [
     price: '1600',
     star: '5',
     sales: '150',
-    image: '/public/images/dashBoard/soy.png'
+    image: '/images/dashBoard/soy.png'
   },
 ]
-
 </script>
 
 <template>
@@ -80,6 +342,7 @@ const top5Data = [
   </section>
   <div class="main">
     <section class="trend">
+      <!-- 🔥 使用者成長趨勢 -->
       <div class="trend-card">
         <div class="trend__header">
           <span class="title">使用者成長趨勢</span>
@@ -91,9 +354,12 @@ const top5Data = [
           </span>
         </div>
         <div class="trend__container">
-          <img src="/public/images/dashBoard/chart.png" alt="">
+          <!-- 🔥 改成 canvas -->
+          <canvas ref="userChartCanvas"></canvas>
         </div>
       </div>
+      
+      <!-- 🔥 訂單成長趨勢 -->
       <div class="trend-card">
         <div class="trend__header">
           <span class="title">訂單成長趨勢</span>
@@ -105,7 +371,8 @@ const top5Data = [
           </span>
         </div>
         <div class="trend__container">
-          <img src="/public/images/dashBoard/chart.png" alt="">
+          <!-- 🔥 改成 canvas -->
+          <canvas ref="orderChartCanvas"></canvas>
         </div>
       </div>
     </section>
@@ -114,7 +381,7 @@ const top5Data = [
         <div class="title">熱銷商品</div>
       </div>
       <div class="top5__container">
-        <div class="top5-card" v-for="product in top5Data" key="product.id">
+        <div class="top5-card" v-for="product in top5Data" :key="product.id">
           <div class="top5-card__title">TOP{{ product.id }}</div>
           <div class="top5-card__container">
             <div class="top5-card__img">
@@ -129,23 +396,20 @@ const top5Data = [
           </div>
         </div>
       </div>
-
     </section>
   </div>
-
 </template>
+
 <style lang="scss" scoped>
 .quan {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   column-gap: 20px;
-  // border: solid 1px red;
   margin-bottom: 20px;
 }
 
 .quan-card {
   padding: 10px;
-  // border: solid 1px;
   background-color: white;
 }
 
@@ -184,7 +448,6 @@ const top5Data = [
   display: grid;
   grid-template-rows: 1fr 1fr;
   row-gap: 20px;
-  // border: solid 1px red;
 }
 
 .trend-card {
@@ -199,7 +462,6 @@ const top5Data = [
   display: flex;
   justify-content: space-between;
   align-items: center;
-  // border: solid 1px;
 }
 
 .trend__period-select {
@@ -215,6 +477,7 @@ const top5Data = [
   padding: 2px 0;
   border-radius: 5px;
   cursor: pointer;
+  transition: ease 0.2s;
 }
 
 .period-select__btn.active {
@@ -223,15 +486,12 @@ const top5Data = [
 }
 
 .trend__container {
-  height: auto;
-  // border: solid 1px;
-}
-.trend__container img{
-  height: 100%;
+  /* 🔥 修改：設定固定高度讓圖表正常顯示 */
+  height: 250px;
+  position: relative;
 }
 
 .top5 {
-  // border: solid 1px red;
   background-color: white;
   padding: 10px;
 }
@@ -242,13 +502,12 @@ const top5Data = [
 
 .top5__container {
   display: grid;
-  grid-template-rows: repeat(3,1fr);
+  grid-template-rows: repeat(3, 1fr);
   gap: 10px;
 }
 
 .top5-card {
   background-color: white;
-  // border: solid 1px;
 }
 
 .top5-card__title {
@@ -266,9 +525,14 @@ const top5Data = [
   background-color: gray;
 }
 
+.top5-card__img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .top5-card__right {
   width: calc(100% - 160px);
-  // border: solid 1px blue;
 }
 
 .name {
@@ -288,7 +552,6 @@ const top5Data = [
 
 .sales {
   padding-top: 10px;
-  // border-top: solid 1px;
   font-size: 12px;
 }
 </style>
