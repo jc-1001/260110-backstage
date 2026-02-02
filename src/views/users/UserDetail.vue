@@ -41,7 +41,6 @@ const statusClass = computed(() => {
 });
 
 // 停用帳號
-
 const disableAccount = async () => {
   // 1. 安全檢查：確保有抓到會員資料與 ID
   if (!userData.value || !userData.value.member_id) {
@@ -75,10 +74,27 @@ const disableAccount = async () => {
   }
 };
 
-const formattedRegDate = computed(() => {
-  if (!userData.value?.created_at) return '載入中...';
-  // 將 YYYY-MM-DD HH:mm:ss 轉為 YYYY-MM-DD
-  return userData.value.created_at.split(' ')[0]; 
+// 已註冊時間
+const memberDuration = computed(() => {
+  // 檢查資料是否存在
+  if (!userData.value?.created_at) return '計算中...';
+  
+  const joinDate = new Date(userData.value.created_at); // 取得資料庫中的加入日期
+  const now = new Date();
+  
+  // 1. 計算總月份差
+  let totalMonths = (now.getFullYear() - joinDate.getFullYear()) * 12 + (now.getMonth() - joinDate.getMonth());
+  
+  // 2. 轉換為 年 + 月
+  const years = Math.floor(totalMonths / 12);
+  const months = totalMonths % 12;
+  
+  // 3. 根據數值格式化字串
+  if (years > 0) {
+    return months > 0 ? `${years} 年 ${months} 個月` : `${years} 年`;
+  } else {
+    return months > 0 ? `${months} 個月` : '未滿 1 個月';
+  }
 });
 
 </script>
@@ -98,7 +114,7 @@ const formattedRegDate = computed(() => {
         </div>
         <h2 class="user-name">{{ userData.full_name }}</h2>
         <div class="divider"></div>
-        <p class="reg-time">已註冊時間：<span>6個月</span></p> 
+        <div class="reg-time">已加入本站：<span>{{ memberDuration }}</span></div>
       </aside>
 
       <main class="info-main">

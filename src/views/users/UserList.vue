@@ -64,7 +64,7 @@ const goToDetail = (user) => {
   <div class="admin-user-list">
     <header class="admin-header">
       <div class="title-section">
-        <h2>使用者管理</h2>
+        <h2 style="color: #2E6669;">使用者管理</h2>
       </div>
       
       <div class="action-section">
@@ -91,7 +91,8 @@ const goToDetail = (user) => {
           <tr 
             v-for="user in paginatedUsers" 
             :key="user.member_id" 
-            :class="{ 'disabled-row': user.account_status == 0 }"
+            @click="router.push({ name: 'UserDetail', params: { memberId: user.member_id } })"
+            class="clickable-row"
           >
             <td class="id-cell">{{ user.full_name }}</td>
             <td class="name-cell">{{ user.email }}</td>
@@ -136,7 +137,7 @@ const goToDetail = (user) => {
 <style lang="scss" scoped>
 $primary-teal: #2E6669;
 $border-color: #e0e0e0;
-.disabled-row td { color: #8D8D8D !important; }
+
 .admin-user-list {
   padding: 40px;
   background-color: #fcfcfc;
@@ -182,8 +183,8 @@ $border-color: #e0e0e0;
   border-collapse: collapse;
   
   th {
-    background-color: #f8f9fa;
-    color: $primary-teal;
+    background-color: #245254;
+    color: #fff;
     font-weight: 600;
     padding: 15px;
     text-align: left;
@@ -196,7 +197,7 @@ $border-color: #e0e0e0;
     color: #444;
   }
 
-  .id-cell { font-family: monospace; font-weight: bold; color: #333; }
+  .id-cell { font-family: monospace; font-weight: bold; color: #333; color: #245254;}
   .name-cell { font-weight: 500; }
 
   tr:hover { background-color: #f9fbfb; }
