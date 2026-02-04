@@ -1,13 +1,11 @@
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, shallowRef } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus, Delete, ArrowLeft, CircleCheck } from '@element-plus/icons-vue'
-import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
-import '@wangeditor/editor/dist/css/style.css' // 引入 CSS 樣式
+import { Plus, Delete, ArrowLeft, CircleCheck, Remove } from '@element-plus/icons-vue'
 import adminHeader from '@/components/admin/adminHeader.vue'
-import productImg1 from '@/assets/images/shop/product_01.jpg'
-import productImg2 from '@/assets/images/shop/product_02.jpg'
+import { publicApi } from '@/utils/publicApi'
+import { parsePublicFile } from '@/utils/parseFile'
 
 const route = useRoute()
 const router = useRouter()
@@ -18,7 +16,180 @@ const productId = route.params.id
 // 判斷是否為編輯模式
 const isEditMode = computed(() => !!productId) // 轉成布林值
 
-// 處理捨棄按鈕邏輯
+// 控制庫存編輯狀態
+const isStockEdit = ref(false)
+
+// 定義表單資料
+const form = ref({
+  name: '',
+  category: '',
+  price: '',
+  status: 1,
+  stock: 0,
+  decs: '',
+  tag: '',
+  keyword: '',
+  Spec: '',
+  features: [''],
+  details: {
+    dosage: '',
+    quantity: '',
+    days: '',
+    usage: '',
+    warning: ''
+  }
+})
+
+const imageList = ref([
+  { id: 0, url: '' }, // 主圖
+  { id: 1, url: '' },
+  { id: 2, url: '' },
+  { id: 3, url: '' },
+  { id: 4, url: '' },
+  { id: 5, url: '' },
+  { id: 6, url: '' },
+])
+
+const categoryOptions = [
+  { value: 1, label: '骨骼關節保養' },
+  { value: 2, label: '心血管循環' },
+  { value: 3, label: '晶亮護眼' }
+]
+
+const statusOptions = [
+  { value: 1, label: '上架' },
+  { value: 0, label: '下架' },
+]
+
+// 產品介紹 =========================
+
+// 新增特色
+const addFeature = () => {
+  form.value.features.push('')
+}
+
+// 刪除特色
+const removeFeature = (index) => {
+  form.value.features.splice(index, 1)
+}
+
+// 圖片處理 =========================
+const handleAvatarSuccess = (index, uploadFile) => {
+  if (uploadFile.raw) {
+    imageList.value[index].url = URL.createObjectURL(uploadFile.raw)
+    imageList.value[index].rawFile = uploadFile.raw
+  }
+}
+
+const beforeAvatarUpload = (rawFile) => {
+  if (rawFile.type !== 'image/jpeg' && rawFile.type !== 'image/png') {
+    ElMessage.error('格式錯誤!')
+    return false
+  }
+  return true
+}
+const removeImage = (index) => {
+  imageList.value[index].url = ''
+  imageList.value[index].rawFile = null
+}
+
+// 資料存取 =========================
+
+// 回填資料
+const fetchProductData = async (id) => {
+  try {
+    const res = await publicApi.get(`admin/get_product_by_id.php?id=${id}`)
+    const data = res.data
+    if (!data) return
+
+    form.value.name = data.title
+    form.value.category = data.category_id
+    form.value.price = data.price
+    form.value.stock = data.stock_quantity
+    form.value.status = data.is_on_shelf
+    form.value.decs = data.description
+    form.value.tag = data.tag
+    form.value.keyword = data.keywords
+    form.value.Spec = data.spec
+
+    form.value.features = Array.isArray(data.features) && data.features.length > 0 ? data.features : ['']
+
+    if (data.details) form.value.details = { ...form.value.details, ...data.details }
+
+    // 圖片回填
+    // parsePublicFile 會自動加上 API 的 domain
+    if (data.image) {
+      imageList.value[0].url = parsePublicFile(data.image)
+    }
+    
+    if (data.gallery && data.gallery.length > 0) {
+      data.gallery.forEach((item, index) => {
+        if (index < 6) {
+          imageList.value[index + 1].url = parsePublicFile(item.large_url)
+        }
+      })
+    }
+
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+// 儲存資料
+const handleSave = async () => {
+  try {
+    const formData = new FormData()
+    if (isEditMode.value) formData.append('id', productId)
+    
+    formData.append('name', form.value.name)
+    formData.append('category', form.value.category)
+    formData.append('price', form.value.price)
+    formData.append('stock', form.value.stock)
+    formData.append('status', form.value.status)
+    formData.append('decs', form.value.decs)
+    formData.append('tag', form.value.tag)
+    formData.append('keywords', form.value.keyword)
+    formData.append('spec', form.value.Spec)
+
+    const validFeatures = form.value.features.filter(f => f.trim() !== '')
+    validFeatures.forEach(f => formData.append('features[]', f))
+
+    formData.append('details[dosage]', form.value.details.dosage)
+    formData.append('details[quantity]', form.value.details.quantity)
+    formData.append('details[days]', form.value.details.days)
+    formData.append('details[usage]', form.value.details.usage)
+    formData.append('details[warning]', form.value.details.warning)
+
+    if (imageList.value[0].rawFile) {
+      formData.append('main_image', imageList.value[0].rawFile)
+    }
+    
+    for (let i = 1; i < imageList.value.length; i++) {
+      const item = imageList.value[i]
+      if (item.rawFile) {
+        formData.append('gallery_files[]', item.rawFile)
+      } else if (item.url && !item.url.startsWith('blob:')) {
+        const match = item.url.match(/(images\/shop\/.*)/)
+        if (match) {
+            formData.append('existing_gallery[]', match[1])
+        } else {
+            formData.append('existing_gallery[]', item.url)
+        }
+      }
+    }
+
+    const res = await publicApi.post('admin/product_save.php', formData)
+    if (res.data.success) {
+      ElMessage.success(res.data.message)
+      router.push('/products')
+    }
+  } catch (err) {
+    console.error(err)
+    ElMessage.error('儲存失敗')
+  }
+}
+
+// 捨棄按鈕邏輯
 const handleDiscard = () => {
   ElMessageBox.confirm('確定要捨棄目前輸入的內容嗎？', '提醒', {
     confirmButtonText: '確定',
@@ -26,179 +197,12 @@ const handleDiscard = () => {
     type: 'warning',
   }).then(() => {
     // 執行返回邏輯
-    router.back() // 或是 router.push('/products')
+    router.back()
     console.log('已捨棄內容')
   })
 }
 
-// 處理儲存按鈕邏輯
-const handleSave = () => {
-  // 在這裡收集你之前的 form 數據與 3 個編輯器的 HTML
-  const finalData = {
-    ...form.value,
-    images: imageList.value.filter((img) => img.url),
-    intro: introHtml.value,
-    spec: specHtml.value,
-    shipping: shippingHtml.value,
-  }
-  
-  if (isEditMode.value) {
-    console.log('正在執行更新 (PUT)...', finalData)
-    ElMessage.success('商品更新成功！')
-  } else {
-    console.log('正在執行新增 (POST)...', finalData)
-    ElMessage.success('商品新增成功！')
-  }
-  
-  // 儲存後通常會跳轉回列表
-  // router.push('/products')
-}
-
-// 定義三個區塊的 HTML 內容
-const introHtml = ref('') // 產品介紹
-const specHtml = ref('') // 商品規格
-const shippingHtml = ref('') // 配送須知
-
-// 定義三個編輯器的實例
-const introEditorRef = shallowRef()
-const specEditorRef = shallowRef()
-const shippingEditorRef = shallowRef()
-
-// 編輯器配置
-const editorConfig = {
-  placeholder: '請輸入內容...',
-  MENU_CONF: {},
-}
-
-// 分別處理 Created 事件
-const handleIntroCreated = (editor) => {
-  introEditorRef.value = editor
-}
-const handleSpecCreated = (editor) => {
-  specEditorRef.value = editor
-}
-const handleShippingCreated = (editor) => {
-  shippingEditorRef.value = editor
-}
-
-// 組件卸載時銷毀所有編輯器
-onBeforeUnmount(() => {
-  const editors = [introEditorRef.value, specEditorRef.value, shippingEditorRef.value]
-  editors.forEach((editor) => {
-    if (editor) editor.destroy()
-  })
-})
-
-// 定義表單資料 (補齊了 template 中用到的欄位，避免回填時遺漏)
-const form = ref({
-  name: '',
-  category: '',
-  price: '',
-  status: '', // 上架/下架
-  stock: '',
-  decsShort: '', // 商品簡介
-  Spec: '',      // 產品規格 (輸入框)
-  tag: ''        // 商品標籤
-})
-
-const imageList = ref([
-  { id: 0, url: '' },
-  { id: 1, url: '' },
-  { id: 2, url: '' },
-  { id: 3, url: '' },
-  { id: 4, url: '' },
-  { id: 5, url: '' },
-])
-
-const categoryOptions = [
-  { value: '維他命', label: '維他命' },
-  { value: '葉黃素', label: '葉黃素' },
-  { value: '關鍵保健', label: '關鍵保健' },
-  { value: '機能保健', label: '機能保健' },
-  { value: '骨骼關節保養', label: '骨骼關節保養' },
-  { value: '心血管循環', label: '心血管循環' },
-  { value: '晶亮護眼', label: '晶亮護眼' },
-]
-
-const statusOptions = [
-  { value: '上架', label: '上架' }, // 注意這裡 value 對應到 form.status
-  { value: '下架', label: '下架' },
-]
-
-// 圖片處理邏輯
-const handleAvatarSuccess = (index, uploadFile) => {
-  if (uploadFile.raw) {
-    imageList.value[index].url = URL.createObjectURL(uploadFile.raw)
-  }
-}
-
-const beforeAvatarUpload = (rawFile) => {
-  const isImage = rawFile.type === 'image/jpeg' || rawFile.type === 'image/png'
-  const isLt2M = rawFile.size / 1024 / 1024 < 2
-  if (!isImage) ElMessage.error('圖片必須是 JPG 或 PNG 格式!')
-  if (!isLt2M) ElMessage.error('圖片大小不能超過 2MB!')
-  return isImage && isLt2M
-}
-
-const removeImage = (index) => {
-  imageList.value[index].url = ''
-  ElMessage.success('圖片已移除')
-}
-
-// --- 新增：編輯模式的資料回填邏輯 ---
-const fetchProductData = (id) => {
-  console.log(`正在編輯 ID: ${id} 的商品，正在回填資料...`)
-
-  // 模擬從後端抓回來的舊資料
-  const mockData = {
-    name: '維他命C 1000mg',
-    decsShort: '每日一顆，增強免疫力',
-    category: '維他命',
-    price: '875',
-    spec: '60粒/瓶', // 對應 form.Spec
-    stock: '120',
-    status: '上架',
-    tag: '熱銷冠軍、全家適用',
-    // 模擬圖片網址 (這裡用 public 資料夾的路徑)
-    images: [
-      productImg1,
-      productImg2,
-
-    ],
-    // 模擬富文本內容
-    intro: '<p>這是舊的產品介紹...</p><ul><li>特點1</li><li>特點2</li></ul>',
-    specHtml: '<p>詳細規格內容...</p>', 
-    shipping: '<p>宅配、超商取貨</p>'
-  }
-
-  // 1. 回填基本欄位
-  form.value.name = mockData.name
-  form.value.decsShort = mockData.decsShort
-  form.value.category = mockData.category
-  form.value.price = mockData.price
-  form.value.Spec = mockData.spec
-  form.value.stock = mockData.stock
-  form.value.status = mockData.status
-  form.value.tag = mockData.tag
-
-  // 2. 回填圖片 (保留 imageList 結構，只填入有值的)
-  if (mockData.images) {
-    mockData.images.forEach((url, index) => {
-      // 確保不超過 imageList 的長度 (6張)
-      if (imageList.value[index]) {
-        imageList.value[index].url = url
-      }
-    })
-  }
-
-  // 3. 回填編輯器內容
-  // 由於編輯器初始化需要一點時間，這裡直接賦值給綁定的 ref 即可，WangEditor 會監聽
-  introHtml.value = mockData.intro
-  specHtml.value = mockData.specHtml
-  shippingHtml.value = mockData.shipping
-}
-
-// 初始化：如果是編輯模式，就撈資料
+// 如果是編輯模式，就撈資料
 onMounted(() => {
   if (isEditMode.value) {
     fetchProductData(productId)
@@ -233,11 +237,7 @@ onMounted(() => {
       <section class="product-upload-container">
         <h3 class="section-title">商品圖片</h3>
         <div class="upload-layout">
-          <div
-            v-for="(item, index) in imageList"
-            :key="item.id"
-            :class="['upload-item', index === 0 ? 'main-item' : 'sub-item']"
-          >
+          <div v-for="(item, index) in imageList" :key="item.id" :class="['upload-item', index === 0 ? 'main-item' : 'sub-item']">
             <el-upload
               class="avatar-uploader"
               action="#"
@@ -255,16 +255,21 @@ onMounted(() => {
               <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
             </el-upload>
           </div>
-          <el-button class="upload-button">上傳圖片</el-button>
         </div>
       </section>
       <section class="add-stock">
         <h3 class="section-title">庫存資訊</h3>
-        <div class="stock-num">
-          <span>庫存數量</span>
-          <span>{{ form.stock || 0 }}</span>
+        <div v-if="!isStockEdit" class="stock-display">
+          <div class="stock-num">
+            <span>庫存數量</span>
+            <span class="num">{{ form.stock || 0 }}</span>
+          </div>
+          <el-button class="add-stock-button" @click="isStockEdit = true">調整庫存量</el-button>
         </div>
-        <el-button class="add-stock-button">調整庫存</el-button>
+        <div v-else class="stock-edit">
+          <el-input v-model="form.stock" type="number" placeholder="輸入庫存量"/>
+          <el-button type="success" class="confirm-stock-button" @click="isStockEdit = false">確定</el-button>
+        </div>
       </section>
     </section>
 
@@ -275,7 +280,11 @@ onMounted(() => {
       </div>
       <div class="field-item full-width">
         <h3 class="section-title">商品簡介</h3>
-        <el-input v-model="form.decsShort" placeholder="請簡要描述商品" />
+        <el-input v-model="form.decs" placeholder="請簡要描述商品" />
+      </div>
+      <div class="field-item full-width">
+        <h3 class="section-title">商品關鍵字</h3>
+        <el-input v-model="form.keyword" placeholder="請輸入商品關鍵字" />
       </div>
       <div class="row-group">
         <div class="field-item">
@@ -290,16 +299,16 @@ onMounted(() => {
           </el-select>
         </div>
         <div class="field-item">
+          <h3 class="section-title">商品標籤</h3>
+          <el-input v-model="form.tag" placeholder="輸入商品標籤 (如: 熱銷冠軍、全家適用)" />
+        </div>
+        <div class="field-item">
           <h3 class="section-title">售價</h3>
           <el-input v-model="form.price" placeholder="輸入金額" />
         </div>
         <div class="field-item">
           <h3 class="section-title">產品規格</h3>
           <el-input v-model="form.Spec" placeholder="如: 60 錠/袋" />
-        </div>
-        <div class="field-item">
-          <h3 class="section-title">初始庫存</h3>
-          <el-input v-model="form.stock" placeholder="輸入庫存數量" />
         </div>
       </div>
       <div class="row-group">
@@ -314,50 +323,28 @@ onMounted(() => {
             ></el-radio>
           </el-radio-group>
         </div>
-        <div class="field-item">
-          <h3 class="section-title">商品標籤</h3>
-          <el-input v-model="form.tag" placeholder="輸入商品標籤 (如: 熱銷冠軍、全家適用)" />
-        </div>
       </div>
       <hr />
       <div class="edit-block">
-        <div class="desc-block">
-          <h3 class="section-title">產品介紹</h3>
-          <div class="editor-container">
-            <Editor
-              style="height: 150px; overflow-y: hidden; overflow-x: hidden"
-              v-model="introHtml"
-              :defaultConfig="editorConfig"
-              mode="default"
-              @onCreated="handleIntroCreated"
-            />
+        <div class="block-header">
+            <h3 class="section-title" style="margin-bottom:0">產品介紹</h3>
+            <el-button type="primary" size="small" :icon="Plus" @click="addFeature" plain>新增介紹</el-button>
+        </div>
+        <div class="feature-list" style="margin-top: 12px">
+          <div v-for="(feat, index) in form.features" :key="index" class="feature-row">
+            <el-input v-model="form.features[index]" placeholder="請輸入一項產品特色..." />
+            <el-button type="danger" circle :icon="Remove" @click="removeFeature(index)" plain/>
           </div>
         </div>
-
-        <div class="desc-block">
-          <h3 class="section-title">商品規格</h3>
-          <div class="editor-container">
-            <Editor
-              style="height: 150px; overflow-y: hidden; overflow-x: hidden"
-              v-model="specHtml"
-              :defaultConfig="editorConfig"
-              mode="default"
-              @onCreated="handleSpecCreated"
-            />
-          </div>
-        </div>
-
-        <div class="desc-block">
-          <h3 class="section-title">配送須知</h3>
-          <div class="editor-container">
-            <Editor
-              style="height: 150px; overflow-y: hidden; overflow-x: hidden"
-              v-model="shippingHtml"
-              :defaultConfig="editorConfig"
-              mode="default"
-              @onCreated="handleShippingCreated"
-            />
-          </div>
+      </div>
+      <div class="edit-block">
+        <h3 class="section-title">詳細規格</h3>
+        <div class="detail-grid">
+          <div class="field-item"><label>劑型</label><el-input v-model="form.details.dosage"/></div>
+          <div class="field-item"><label>數量</label><el-input v-model="form.details.quantity"/></div>
+          <div class="field-item"><label>參考食用天數</label><el-input v-model="form.details.days"/></div>
+          <div class="field-item full-width"><label>建議食用方式</label><el-input v-model="form.details.usage"/></div>
+          <div class="field-item full-width"><label>注意事項</label><el-input v-model="form.details.warning" type="textarea" :rows="3"/></div>
         </div>
       </div>
     </section>
@@ -365,7 +352,6 @@ onMounted(() => {
 </template>
 
 <style scoped lang="scss">
-// 這裡保留原本所有同學寫的 CSS 樣式
 .left {
   display: flex;
   flex-direction: column;
@@ -437,14 +423,32 @@ onMounted(() => {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    font-size: 12px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    .num { 
+      font-weight: bold; 
+      font-size: 16px; 
+    }
   }
 }
+
+/* 庫存 */
+.add-stock-button { 
+  width: 100%; 
+  background-color: #333; 
+  color: white; 
+  border: none; }
+
+.confirm-stock-button { 
+  width: 100%; 
+  margin-top: 8px; 
+}
+
 
 .upload-layout {
   display: flex;
   flex-wrap: wrap;
-  //   gap: 16px; //圖片距離
+  justify-content: space-between;
 }
 
 /* 圖片框樣式 */
@@ -458,8 +462,8 @@ onMounted(() => {
 .sub-item .avatar-uploader-icon,
 .sub-item .avatar-container,
 .sub-item .avatar-img {
-  width: 40px;
-  height: 40px;
+  width: 60px;
+  height: 60px;
 }
 
 .avatar-container {
@@ -508,6 +512,9 @@ onMounted(() => {
   background-color: $primaryDark;
   color: #fff;
   width: 100%;
+  &:hover{
+    background-color: $primary;
+  }
 }
 .edit-block {
   display: grid;
@@ -531,5 +538,42 @@ onMounted(() => {
       font-weight: $fontWeightBold;
     }
   }
+}
+
+.block-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px dashed #eee;
+    padding-bottom: 8px;
+}
+
+.feature-row { 
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px; 
+}
+
+.detail-grid { 
+  display: grid;
+  grid-template-columns: 1fr 1fr; 
+  gap: 16px; 
+  background-color: #f8f9fa; 
+  padding: 16px; 
+  border-radius: 8px; 
+  label { 
+    display: block; 
+    margin-bottom: 4px; 
+    font-size: 13px; 
+    color: #666; 
+  } 
+}
+.row-group { 
+  display: grid; 
+  grid-template-columns: 1fr 1fr; 
+  gap: 20px; 
+}
+.full-width { 
+  grid-column: 1 / -1; 
 }
 </style>
