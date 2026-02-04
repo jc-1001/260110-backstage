@@ -2,15 +2,12 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router'; 
 
-// import { useUserId } from '@/views/users/UserDetail.vue';
-// const userId = useUserId();
-
 const router = useRouter(); 
 
 const account = ref('');
 const password = ref('');
 
-// 1. 將單一帳號改為管理員清單 (陣列)
+// 1. 管理員清單 (陣列)
 const ADMIN_ACCOUNTS = [
     'ziyi1114@gmail.com',
     'macio6898@gmail.com',  

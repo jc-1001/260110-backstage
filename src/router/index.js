@@ -109,12 +109,11 @@ router.beforeEach(async (to, from) => {
 router.beforeEach((to, from, next) => {
   const isAuthenticated = localStorage.getItem('isAdminLogin') === 'true';
 
-  // 如果要去的地方不是登入頁 (to.name !== 'Adminlogin') 且 使用者未登入
+  // 非登入頁 且 使用者未登入
   if (to.name !== 'Adminlogin' && !isAuthenticated) {
-    // 強制跳轉到登入頁
+    // 強制跳轉
     next({ name: 'Adminlogin' });
   } else {
-    // 否則放行
     next();
   }
 });

@@ -14,7 +14,7 @@
       // 加上時間戳記 t=${new Date().getTime()}，防止瀏覽器緩存舊資料
       const res = await axios.get(`http://localhost:8888/unicare_api/member/user_api.php?t=${new Date().getTime()}`);
       users.value = res.data; 
-      console.log("最新大水庫資料：", users.value);
+      console.log("最新資料庫資料：", users.value);
     } catch (error) {
       console.error("連線失敗：", error);
     }

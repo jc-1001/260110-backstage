@@ -9,40 +9,40 @@ const route = useRoute();
 const router = useRouter();
 const userData = ref(null);
 
-// 1. 改向「大水庫」請求單一使用者詳細資料
+// 1. 改向資料庫 請求單一使用者詳細資料
 const fetchUserDetail = async () => {
   try {
-    // 1. 抓取 memberId (必須與 index.js 的 :memberId 對應)
+    // 1. 抓 memberId (與 index.js 的)
     const mId = route.params.memberId; 
     
-    // 2. 請求資料庫資料 (大水庫)
+    // 2. 請求資料庫資料
     const res = await axios.get(`${API_ENDPOINTS.USER_LIST}?t=${new Date().getTime()}`);
     const users = Array.isArray(res.data) ? res.data : [];
 
-    // 3. 比對欄位 (必須使用資料庫真實欄位 member_id)
+    // 3. 比對欄位 (Er model)
     userData.value = users.find(u => String(u.member_id) === String(mId));
 
     if (!userData.value) throw new Error('找不到該會員');
     
   } catch (error) {
-    console.error('抓取失敗:', error);
+    console.error('讀取失敗:', error);
   }
 };
 onMounted(fetchUserDetail);
 
-// 計算狀態文字
+// 計算狀態
 const statusText = computed(() => {
   return userData.value?.account_status == 1 ? '使用中' : '已停用';
 });
 
-// 計算狀態的 CSS Class (為了變換顏色)
+// 計算狀態 CSS
 const statusClass = computed(() => {
   return userData.value?.account_status == 1 ? 'status-active' : 'status-disabled';
 });
 
 // 停用帳號
 const disableAccount = async () => {
-  // 1. 安全檢查：確保有抓到會員資料與 ID
+  // 1. 確保有抓到會員資料與 ID
   if (!userData.value || !userData.value.member_id) {
     alert("系統忙碌中，請稍後再試。");
     return;
@@ -50,7 +50,7 @@ const disableAccount = async () => {
 
   if (confirm('確定要停用此帳號嗎？停用後該會員將無法登入系統。')) {
     try {
-      // 2. 確保網址與 MAMP Port (8888) 一致
+      // 2. 網址: MAMP Port (8888) 
       const apiUrl = 'http://localhost:8888/unicare_api/member/toggle_status_api.php';
       
       // UserDetail.vue 內的安全呼叫
@@ -64,12 +64,11 @@ const disableAccount = async () => {
         userData.value.account_status = 0;
         alert('停用成功！');
       } else {
-        // 這樣就能看到 PHP 傳回來的真實錯誤訊息
         alert('更新失敗: ' + (response.data?.message || '未知錯誤'));
       }
     } catch (error) {
       console.error('API 連線錯誤：', error);
-      alert('無法連線至 MAMP 伺服器，請檢查網路設定。');
+      alert('無法連線至伺服器，請檢查網路。');
     }
   }
 };

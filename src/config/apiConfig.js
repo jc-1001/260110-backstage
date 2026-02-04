@@ -1,5 +1,5 @@
-// src/config/apiConfig.js
-const API_BASE_URL = 'http://localhost:8888/unicare_api'; // 方案 A 確定的網址
+
+const API_BASE_URL = 'http://localhost:8888/unicare_api'; // 確定的網址
 
 // 具體功能入口
 export const API_ENDPOINTS = {
@@ -8,5 +8,5 @@ export const API_ENDPOINTS = {
     REGISTER: `${API_BASE_URL}/member/register_api.php`,
 };
 
-// 預設匯出基礎網址
+// 預設匯出時的基礎網址
 export default API_BASE_URL;
