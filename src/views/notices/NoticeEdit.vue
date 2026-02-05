@@ -24,7 +24,6 @@ const content = ref('')
 const toolbarConfig = {
   // 放入出現的功能 Key
   toolbarKeys: [
-    'fontSize', // 字型大小
     'bold', // 粗體
     'italic', // 斜體
     'underline', // 下劃線
