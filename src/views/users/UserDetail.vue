@@ -1,14 +1,15 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import axios from 'axios';
-import { API_ENDPOINTS } from '@/config/apiConfig';
+import { publicApi } from '@/utils/publicApi';
 import { computed } from 'vue';
 
 const route = useRoute();
 const router = useRouter();
 const userData = ref(null);
 
+
+const USER_LIST_API = 'member/user_api.php';
 // 1. 改向資料庫 請求單一使用者詳細資料
 const fetchUserDetail = async () => {
   try {
@@ -16,18 +17,23 @@ const fetchUserDetail = async () => {
     const mId = route.params.memberId; 
     
     // 2. 請求資料庫資料
-    const res = await axios.get(`${API_ENDPOINTS.USER_LIST}?t=${new Date().getTime()}`);
-    const users = Array.isArray(res.data) ? res.data : [];
+    const res = await publicApi.get(`${USER_LIST_API}?t=${new Date().getTime()}`);
+    const users = Array.isArray(res.data) ? res.data : (res.data.users || []);
 
     // 3. 比對欄位 (Er model)
-    userData.value = users.find(u => String(u.member_id) === String(mId));
+const foundUser = users.find(u => String(u.member_id) === String(mId));
 
-    if (!userData.value) throw new Error('找不到該會員');
-    
-  } catch (error) {
+    if (foundUser) {
+      userData.value = foundUser;
+      console.log('抓取到的會員資料:', userData.value);
+    } else {
+      throw new Error('在清單中找不到該會員 ID: ' + mId);
+    }
+    } catch (error) {
     console.error('讀取失敗:', error);
+    // 可以在這裡加一個 alert 或是跳轉回列表頁
   }
-};
+}
 onMounted(fetchUserDetail);
 
 // 計算狀態
@@ -51,10 +57,10 @@ const disableAccount = async () => {
   if (confirm('確定要停用此帳號嗎？停用後該會員將無法登入系統。')) {
     try {
       // 2. 網址: MAMP Port (8888) 
-      const apiUrl = 'http://localhost:8888/unicare_api/member/toggle_status_api.php';
+      const apiUrl = 'member/toggle_status_api.php';
       
       // UserDetail.vue 內的安全呼叫
-      const response = await axios.post(apiUrl, {
+      const response = await publicApi.post(apiUrl, {
         member_id: userData.value.member_id,
         new_status: 0
       });
