@@ -107,7 +107,7 @@ router.beforeEach(async (to, from) => {
 
 // --- 導航守衛 ---
 router.beforeEach((to, from, next) => {
-  const isAuthenticated = localStorage.getItem('isAdminLogin') === 'true';
+  const isAuthenticated = SessionStorage.getItem('isAdminLogin') === 'true';
 
   // 非登入頁 且 使用者未登入
   if (to.name !== 'Adminlogin' && !isAuthenticated) {

@@ -23,7 +23,7 @@ const handleLogin = () => {
     // 2. 使用 includes 檢查帳號是否存在於陣列中
     if (ADMIN_ACCOUNTS.includes(account.value) && password.value === ADMIN_PASSWORD) {
         alert('登入成功');
-        localStorage.setItem('isAdminLogin', 'true');// 登入成功時存入標記
+        SessionStorage.setItem('isAdminLogin', 'true');// 登入成功時存入標記
         router.push({ name: 'Dashboard' }); 
     } else {
         alert('帳號或密碼錯誤，請重新輸入。');
