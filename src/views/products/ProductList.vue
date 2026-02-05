@@ -1,8 +1,10 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Search, Plus, Edit, Delete } from '@element-plus/icons-vue' 
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { parsePublicFile } from '@/utils/parseFile'
+import { publicApi } from '@/utils/publicApi'
 import adminHeader from '@/components/admin/adminHeader.vue'
 
 const router = useRouter()
@@ -13,72 +15,25 @@ const searchText = ref('')
 // 多選儲存區
 const multipleSelection = ref([])
 
-// 圖片處理
-const processImage = (path) => {
-  const baseUrl = import.meta.env.BASE_URL || '/'
-  return baseUrl + path.replace(/^\//, '')
+// 模擬商品資料
+const productList = ref([])
+
+// 抓商品資料
+const fetchData = async () => {
+  try {
+    const res = await publicApi.get('admin/get_products.php')
+
+    productList.value = res.data.data
+  } catch(err) {
+    console.error(err)
+  }
 }
 
-// 模擬商品資料
-const productList = ref([
-  {
-    id: 1,
-    name: '維他命C 1000mg',
-    category: '維他命',
-    price: 875,
-    stock: 120, 
-    isOnShelf: true,
-    image: '/images/shop/product_01.jpg'
-  },
-  {
-    id: 2,
-    name: '專利金盞花葉黃素 (60入)',
-    category: '葉黃素',
-    price: 1500,
-    stock: 150,
-    isOnShelf: false, // 下架狀態
-    image: '/images/shop/product_02.jpg'
-  },
-  {
-    id: 3,
-    name: '葡萄糖胺飲 30入',
-    category: '關鍵保健',
-    price: 699,
-    stock: 30,
-    isOnShelf: true,
-    image: '/images/shop/product_03.jpg'
-  },
-  {
-    id: 4,
-    name: '好骨立 配方升級 50入',
-    category: '關鍵保健',
-    price: 2499,
-    stock: 200,
-    isOnShelf: true,
-    image: '/images/shop/product_04.jpg'
-  },
-  {
-    id: 5,
-    name: '維他命D 500mg',
-    category: '維他命',
-    price: 499,
-    stock: 110,
-    isOnShelf: true,
-    image: '/images/shop/product_01.jpg'
-  },
-  {
-    id: 6,
-    name: '養氣人參 20入',
-    category: '機能保健',
-    price: 1899,
-    stock: 0,
-    isOnShelf: true,
-    image: '/images/shop/product_02.jpg'
-  }
-])
+onMounted(() => {
+  fetchData()
+})
 
 // --- 邏輯區 ---
-
 const filteredData = computed(() => {
   if (!searchText.value) return productList.value
   return productList.value.filter(item => 
@@ -112,23 +67,35 @@ const handleSelectionChange = (val) => {
   multipleSelection.value = val
 }
 
-const handleBatchAction = (action) => {
+// 處理批次上/下架
+const handleBatchAction = async (action) => {
   if (multipleSelection.value.length === 0) {
     ElMessage.warning('請先勾選商品')
     return
   }
   
+  const ids = multipleSelection.value.map(item => item.id)
   const actionText = action === 'on' ? '上架' : '下架'
   
   ElMessageBox.confirm(`確定要將選取的 ${multipleSelection.value.length} 項商品執行「${actionText}」嗎？`, '提示', {
     confirmButtonText: '確定',
     cancelButtonText: '取消',
     type: 'warning'
-  }).then(() => {
-    multipleSelection.value.forEach(item => {
-      item.isOnShelf = (action === 'on')
-    })
-    ElMessage.success(`已成功${actionText}`)
+  }).then(async () => {
+    try {
+      const res = await publicApi.post('admin/batch_update_product.php', {
+        ids: ids,
+        action: action
+      })
+
+      if(res.data.success) { 
+        ElMessage.success('更新成功')
+        fetchData()
+      }
+    } catch (err) {
+      console.error(err)
+      ElMessage.error('更新失敗')
+    }
   })
 }
 
@@ -195,14 +162,14 @@ const goEditProduct = (id) => {
         <el-table-column label="商品名稱" min-width="250">
           <template #default="scope">
             <div class="product_info">
-              <img :src="processImage(scope.row.image)" class="p_img" alt="img">
+              <img :src="parsePublicFile(scope.row.image)" class="p_img" alt="img">
               <span class="p_name">{{ scope.row.name }}</span>
             </div>
           </template>
         </el-table-column>
 
-        <el-table-column prop="category" label="分類" width="120" sortable />
-        <el-table-column prop="price" label="售價" width="120" sortable />
+        <el-table-column prop="category" label="分類" width="200" align="center"/>
+        <el-table-column prop="price" label="售價" width="180" sortable align="center"/>
         
         <el-table-column label="庫存" width="120" sortable>
           <template #default="scope">
