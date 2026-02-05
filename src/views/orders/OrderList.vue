@@ -82,7 +82,7 @@ const getTagClass = (status) => {
   const statusMap = {
     訂單成立: 'tag-create',
     備貨中: 'tag-pending',
-    已出貨: 'tag-success',
+    配送中: 'tag-success',
     已取消: 'tag-error',
   }
   return statusMap[status] || ''

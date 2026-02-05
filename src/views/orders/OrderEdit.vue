@@ -134,7 +134,7 @@ const handleShip = () => {
     cancelButtonText: '取消',
     type: 'warning',
   }).then(() => {
-    updateStatus('已出貨')
+    updateStatus('配送中')
   })
 }
 

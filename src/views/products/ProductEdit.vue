@@ -189,16 +189,29 @@ const handleSave = async () => {
   }
 }
 
-// 捨棄按鈕邏輯
-const handleDiscard = () => {
-  ElMessageBox.confirm('確定要捨棄目前輸入的內容嗎？', '提醒', {
-    confirmButtonText: '確定',
-    cancelButtonText: '取消',
-    type: 'warning',
-  }).then(() => {
-    // 執行返回邏輯
-    router.back()
-    console.log('已捨棄內容')
+
+// 刪除商品
+const handleDelete = () => {
+  ElMessageBox.prompt('危險操作，請輸入員工編號', '取消訂單', {
+    confirmButtonText: '確認刪除',
+    cancelButtonText: '關閉',
+    type: 'warning'
+  }).then(async () => {
+    try {
+      const res = await publicApi.post('admin/product_delete.php', {id: productId})
+
+      if(res.data.success) {
+        ElMessage.success('商品已刪除')
+        router.push('/products') // 刪完回列表
+      } else {
+        ElMessage.error(res.data.message || '刪除失敗')
+      }
+    } catch (err) {
+      console.error(err)
+      ElMessage.error('刪除發生錯誤')
+    }
+  }).catch(() => {
+    console.log('取消刪除商品')
   })
 }
 
@@ -222,8 +235,8 @@ onMounted(() => {
     </div>
 
     <div class="right-actions">
-      <el-button class="del-btn" type="danger" :icon="Delete" @click="handleDiscard"
-        >捨棄</el-button
+      <el-button v-if="isEditMode" class="del-btn" type="danger" :icon="Delete" @click="handleDelete"
+        >刪除商品</el-button
       >
 
       <el-button class="save-btn" :icon="CircleCheck" @click="handleSave">
