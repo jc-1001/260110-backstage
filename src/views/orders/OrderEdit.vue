@@ -77,6 +77,14 @@ onMounted(()=>{
   fetchData()
 })
 
+// 付款方式
+const paymentMap = {
+  linepay: 'LINE Pay',
+  credit: '信用卡付款',
+  atm: 'ATM轉帳'
+}
+
+
 // 點擊狀態按鈕呼叫api (開始備貨/出貨/取消)
 const updateStatus = async (newStatus, note = '') => {
   try {
@@ -198,7 +206,7 @@ const handleCancel = () => {
               <div class="card_header">付款資訊</div>
             </template>
             <el-descriptions :column="1" border>
-              <el-descriptions-item label="付款方式">{{ orderData.payment.method == 'credit' ? '信用卡' : 'ATM' }}</el-descriptions-item>
+              <el-descriptions-item label="付款方式">{{ paymentMap[orderData.payment.method] }}</el-descriptions-item>
               <el-descriptions-item label="付款狀態">{{ orderData.payment.status == 0 ? '未付款':'已付款' }}</el-descriptions-item>
             </el-descriptions>
           </el-card>
