@@ -1,9 +1,8 @@
 <script setup>
   import { ref, onMounted, computed } from 'vue';
   import { useRouter } from 'vue-router';
-  import axios from 'axios';
-  import { API_ENDPOINTS } from '@/config/apiConfig';
-
+  import { publicApi } from '@/utils/publicApi';
+  
   const router = useRouter();
   const users = ref([]);
   const searchQuery = ref('');
@@ -12,7 +11,7 @@
   const fetchUsers = async () => {
     try {
       // 加上時間戳記 t=${new Date().getTime()}，防止瀏覽器緩存舊資料
-      const res = await axios.get(`http://localhost:8888/unicare_api/member/user_api.php?t=${new Date().getTime()}`);
+      const res = await publicApi.get(`member/user_api.php?t=${new Date().getTime()}`);
       users.value = res.data; 
       console.log("最新資料庫資料：", users.value);
     } catch (error) {

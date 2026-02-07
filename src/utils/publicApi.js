@@ -3,7 +3,7 @@ import axios from 'axios'
 export const base = import.meta.env.BASE_URL
 
 export const publicApi = axios.create({
-    baseURL: base,
+    baseURL: import.meta.env.VITE_API_DOMAIN,
     timeout: 5000
 })
 
