@@ -23,9 +23,10 @@ const adminInfo = ref({
 
 // 登出功能
 const handleLogout = () => {
-  if (confirm('確定要登出管理系統嗎？')) {
-    localStorage.removeItem('isAdminLogin') // 清除路由守衛需要的登入標記
-    router.push('/') // 導回登入頁面
+  if (confirm('確定要登出後台嗎？')) {
+    // 跟 LoginView 一樣使用 sessionStorage
+    sessionStorage.removeItem('isAdminLogin') 
+    router.push('/') 
   }
 }
 </script>

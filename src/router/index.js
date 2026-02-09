@@ -109,10 +109,12 @@ router.beforeEach(async (to, from) => {
 router.beforeEach((to, from, next) => {
   const isAuthenticated = sessionStorage.getItem('isAdminLogin') === 'true';
 
-  // 非登入頁 且 使用者未登入
   if (to.name !== 'Adminlogin' && !isAuthenticated) {
-    // 強制跳轉
+    // 沒登入想進後台 
     next({ name: 'Adminlogin' });
+  } else if (to.name === 'Adminlogin' && isAuthenticated) {
+    // 已經登入想回登入頁 -> 強制留在 Dashboard 
+    next({ name: 'Dashboard' });
   } else {
     next();
   }
