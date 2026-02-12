@@ -19,23 +19,14 @@
 
 ## 相關連結
 
-* [專案正式上線網址](https://tibamef2e.com/cjd102/g1/front/)
+* [專案正式上線網址](https://tibamef2e.com/cjd102/g1/)
 * [專案 Demo 影片](https://www.google.com/search?q=https://youtube.com/...)
-* [系統設計文件](https://www.google.com/search?q=https://...)
+* [系統分析文件](https://drive.google.com/file/d/1AA18ODrwgjLmlsjEHNaUZL2IwZqd6rO-/view)
 * [Figma連結](https://www.figma.com/design/X78x31tK2e6S5C17o5cA0N/%E5%9C%98%E9%AB%94%E5%B0%88%E9%A1%8C%E8%A8%AD%E8%A8%88%E6%AD%A3%E5%BC%8F-%E5%A4%9A%E9%A0%81%E9%9D%A2-?node-id=0-4&t=FtUkNAqiQ6REpRAA-1)
 
 ---
 
 ## 技術架構
-
-### 前端
-| 類別 | 技術/工具 |
-| :--- | :--- |
-| **核心框架** | ![Vue.js](https://img.shields.io/badge/Vue.js_3-35495E?logo=vue.js) ![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white) |
-| **樣式與 UI** | ![Sass](https://img.shields.io/badge/Sass-CC6699?logo=sass&logoColor=white) ![Element Plus](https://img.shields.io/badge/Element_Plus-409EFF?logo=element-plus&logoColor=white) |
-| **動畫與互動** | Swiper.js, SweetAlert2 |
-| **數據視覺化** | Chart.js |
-| **API 與 邏輯** | Axios, Day.js |
 
 ### 後端 & 其他
 | 類別 | 技術/工具 |
@@ -48,16 +39,6 @@
 
 ## 專案功能
 
-### 前台功能 (使用者端)
-
-| 頁面模組 | 功能亮點 |
-| :--- | :--- |
-| **首頁戰情室** | • **紅綠燈警示**：依健康標準顯示顏色提醒今日狀態。<br>• **即時通知**：藥品低庫存提示、服藥時間提醒。<br>• **快速紀錄**：燈箱式介面，快速輸入數值與飲食。 |
-| **身體數值中心** | • **數據視覺化**：體重、血壓、血糖、血氧、心率折線圖。<br>• **趨勢分析**：支援切換 7 天及 30 天趨勢檢視。 |
-| **數位藥箱** | • **互動翻卡**：點擊藥品卡片查看詳細成分與用法。<br>• **庫存管理**：視覺化呈現剩餘藥量。 |
-| **飲食日記** | • **行事曆檢視**：以底色直觀區分每日紀錄狀態。<br>• **圖文紀錄**：支援上傳餐點照片與詳細文字描述。 |
-| **樂活商城** | • **完整電商**：分類篩選、購物車、關鍵字搜尋。<br>• **金流串接**：整合 **LINE Pay** 支付功能。<br>• **訂單追蹤**：歷史訂單查詢與「再買一次」捷徑。<br>• **商城積分**：獲得方式 - 每日簽到、商城有獎徵答遊戲。|
-| **個人中心** | 會員資料管理、積分查詢、幫助中心 (FAQ)。 |
 
 ### 後台功能 (管理端)
 
@@ -69,6 +50,25 @@
 | **訂單管理** | 訂單狀態變更 (連動前台通知)、出貨管理、條件篩選。 |
 | **系統管理** | 公告與優惠活動發布、權限控管。 |
 
+---
+
+## 後臺介面展示
+### 數據儀錶板
+![數據儀錶板](./src/assets/images/common/github/01.png) 
+### 使用者管理
+![使用者管理](./src/assets/images/common/github/02.jpg) 
+### 商品管理
+![商品管理](./src/assets/images/common/github/03.jpg) 
+### 商品管理
+![商品管理](./src/assets/images/common/github/04.png) 
+### 商品管理
+![商品管理](./src/assets/images/common/github/05.jpg) 
+### 訂單詳情
+![訂單詳情](./src/assets/images/common/github/06.jpg) 
+### 系統訊息與活動
+![系統訊息與活動](./src/assets/images/common/github/07.jpg) 
+### 編輯系統訊息
+![編輯系統訊息](./src/assets/images/common/github/08.jpg) 
 ---
 
 ## 專案架構
